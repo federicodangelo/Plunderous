@@ -1,0 +1,384 @@
+
+tiles.png
+size: 2048,64
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+dirt-big-spot
+  rotate: false
+  xy: 1, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-center-0
+  rotate: false
+  xy: 35, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-center-1
+  rotate: false
+  xy: 69, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-center-2
+  rotate: false
+  xy: 103, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-center-3
+  rotate: false
+  xy: 137, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-inner-north-east
+  rotate: false
+  xy: 171, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-inner-north-west
+  rotate: false
+  xy: 205, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-inner-south-east
+  rotate: false
+  xy: 239, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-inner-south-west
+  rotate: false
+  xy: 273, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-east
+  rotate: false
+  xy: 307, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-north
+  rotate: false
+  xy: 341, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-north-east
+  rotate: false
+  xy: 375, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-north-west
+  rotate: false
+  xy: 409, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-south
+  rotate: false
+  xy: 443, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-south-east
+  rotate: false
+  xy: 477, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-south-west
+  rotate: false
+  xy: 511, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-outer-west
+  rotate: false
+  xy: 545, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+dirt-small-spot
+  rotate: false
+  xy: 579, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-big-spot
+  rotate: false
+  xy: 613, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-center-0
+  rotate: false
+  xy: 647, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-center-1
+  rotate: false
+  xy: 681, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-center-2
+  rotate: false
+  xy: 715, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-center-3
+  rotate: false
+  xy: 749, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-inner-north-east
+  rotate: false
+  xy: 783, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-inner-north-west
+  rotate: false
+  xy: 817, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-inner-south-east
+  rotate: false
+  xy: 851, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-inner-south-west
+  rotate: false
+  xy: 885, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-east
+  rotate: false
+  xy: 919, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-north
+  rotate: false
+  xy: 953, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-north-east
+  rotate: false
+  xy: 987, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-north-west
+  rotate: false
+  xy: 1021, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-south
+  rotate: false
+  xy: 1055, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-south-east
+  rotate: false
+  xy: 1089, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-south-west
+  rotate: false
+  xy: 1123, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-outer-west
+  rotate: false
+  xy: 1157, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+grass-small-spot
+  rotate: false
+  xy: 1191, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-big-spot
+  rotate: false
+  xy: 1225, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-center-0
+  rotate: false
+  xy: 1259, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-center-1
+  rotate: false
+  xy: 1293, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-center-2
+  rotate: false
+  xy: 1327, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-center-3
+  rotate: false
+  xy: 1361, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-inner-north-east
+  rotate: false
+  xy: 1395, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-inner-north-west
+  rotate: false
+  xy: 1429, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-inner-south-east
+  rotate: false
+  xy: 1463, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-inner-south-west
+  rotate: false
+  xy: 1497, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-east
+  rotate: false
+  xy: 1531, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-north
+  rotate: false
+  xy: 1565, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-north-east
+  rotate: false
+  xy: 1599, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-north-west
+  rotate: false
+  xy: 1633, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-south
+  rotate: false
+  xy: 1667, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-south-east
+  rotate: false
+  xy: 1701, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-south-west
+  rotate: false
+  xy: 1735, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-outer-west
+  rotate: false
+  xy: 1769, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+water-small-spot
+  rotate: false
+  xy: 1803, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
