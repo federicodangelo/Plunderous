@@ -37,12 +37,15 @@ class UpdatePhysicsSystem : EntitySystem() {
 
         val dx = rigidbody.velocityX * deltaTime
         val dy = rigidbody.velocityY * deltaTime
+        val drot = rigidbody.velocityRot * deltaTime
 
         val oldX = transform.x
         val oldY = transform.y
+        val oldRot = transform.rot
 
         var newX = oldX + dx
         var newY = oldY + dy
+        var newRot = oldRot + drot
 
         if (collider != null) {
             if (checkAgainstColliders(collider, newX, newY)) {
@@ -59,6 +62,7 @@ class UpdatePhysicsSystem : EntitySystem() {
 
         transform.x = newX
         transform.y = newY
+        transform.rot = newRot
     }
 
     private fun checkAgainstColliders(collider: Collider, newX: Float, newY: Float): Boolean {

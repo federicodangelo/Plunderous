@@ -7,8 +7,8 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.fangelo.plunderous.client.game.systems.ProcessAvatarInputSystem
-import com.fangelo.plunderous.client.game.systems.UpdateAvatarAnimationSystem
+import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.systems.UpdateShipAnimationSystem
 import com.fangelo.plunderous.client.game.world.WorldBuilder
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
@@ -58,8 +58,8 @@ class Game {
     private fun initEngineSystems() {
         engine.addSystem(UpdatePhysicsSystem())
         engine.addSystem(UpdateCameraSystem())
-        engine.addSystem(ProcessAvatarInputSystem())
-        engine.addSystem(UpdateAvatarAnimationSystem())
+        engine.addSystem(ProcessShipInputSystem())
+        engine.addSystem(UpdateShipAnimationSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(VisualTilemapRenderSystem())
         engine.addSystem(VisualSpriteRenderSystem())
@@ -79,7 +79,7 @@ class Game {
     private fun loadAssets() {
         assetManager.load<TextureAtlas>("tiles/tiles.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.load<TextureAtlas>("items/items.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
-        assetManager.load<TextureAtlas>("players/players.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
+        assetManager.load<TextureAtlas>("ships/ships.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.finishLoading()
     }
 
@@ -87,7 +87,7 @@ class Game {
 
         val cameraEntity = engine.entity {
             with<Transform> {
-                set(16.5f, 16.5f)
+                set(16.5f, 16.5f, 0f)
             }
             with<Camera>()
         }

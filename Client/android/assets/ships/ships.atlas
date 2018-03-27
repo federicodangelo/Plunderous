@@ -1,0 +1,222 @@
+
+ships.png
+size: 512,128
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+ship
+  rotate: false
+  xy: 2, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+ship-damaged1
+  rotate: false
+  xy: 70, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+ship-damaged2
+  rotate: false
+  xy: 138, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+ship-destroyed
+  rotate: false
+  xy: 206, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+
+ships2.png
+size: 1024,256
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+misc/dinghyLarge1
+  rotate: false
+  xy: 682, 192
+  size: 20, 38
+  orig: 20, 38
+  offset: 0, 0
+  index: -1
+misc/dinghyLarge2
+  rotate: false
+  xy: 682, 152
+  size: 20, 38
+  orig: 20, 38
+  offset: 0, 0
+  index: -1
+misc/dinghyLarge3
+  rotate: false
+  xy: 704, 192
+  size: 20, 38
+  orig: 20, 38
+  offset: 0, 0
+  index: -1
+misc/dinghySmall1
+  rotate: false
+  xy: 682, 124
+  size: 16, 26
+  orig: 16, 26
+  offset: 0, 0
+  index: -1
+misc/dinghySmall2
+  rotate: false
+  xy: 704, 164
+  size: 16, 26
+  orig: 16, 26
+  offset: 0, 0
+  index: -1
+misc/dinghySmall3
+  rotate: false
+  xy: 726, 204
+  size: 16, 26
+  orig: 16, 26
+  offset: 0, 0
+  index: -1
+misc/ship (10)
+  rotate: false
+  xy: 2, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (11)
+  rotate: false
+  xy: 2, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (12)
+  rotate: false
+  xy: 70, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (14)
+  rotate: false
+  xy: 70, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (15)
+  rotate: false
+  xy: 138, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (16)
+  rotate: false
+  xy: 138, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (17)
+  rotate: false
+  xy: 206, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (18)
+  rotate: false
+  xy: 206, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (2)
+  rotate: false
+  xy: 274, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (20)
+  rotate: false
+  xy: 274, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (21)
+  rotate: false
+  xy: 342, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (22)
+  rotate: false
+  xy: 342, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (23)
+  rotate: false
+  xy: 410, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (24)
+  rotate: false
+  xy: 410, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (3)
+  rotate: false
+  xy: 478, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (4)
+  rotate: false
+  xy: 478, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (5)
+  rotate: false
+  xy: 546, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (6)
+  rotate: false
+  xy: 546, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (8)
+  rotate: false
+  xy: 614, 117
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1
+misc/ship (9)
+  rotate: false
+  xy: 614, 2
+  size: 66, 113
+  orig: 66, 113
+  offset: 0, 0
+  index: -1

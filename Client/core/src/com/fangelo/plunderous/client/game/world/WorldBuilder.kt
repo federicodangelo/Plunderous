@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
-import com.fangelo.plunderous.client.game.components.avatar.Avatar
-import com.fangelo.plunderous.client.game.components.avatar.MainAvatar
 import com.fangelo.libraries.ashley.components.*
 import com.fangelo.libraries.ashley.data.Sprite
+import com.fangelo.plunderous.client.game.components.ship.MainShip
+import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.entity
 import ktx.collections.toGdxArray
 import java.util.*
@@ -61,8 +61,7 @@ class WorldBuilder {
 
     private fun buildTileset(tilesetAtlas: TextureAtlas): Array<TextureRegion> {
         return arrayOf(
-            tilesetAtlas.findRegion("grass-center-0"), tilesetAtlas.findRegion("grass-center-1"),
-            tilesetAtlas.findRegion("grass-center-2"), tilesetAtlas.findRegion("grass-center-3")
+            tilesetAtlas.findRegion("water")
         )
     }
 
@@ -70,6 +69,7 @@ class WorldBuilder {
     private fun addItems() {
         val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
 
+        /*
         addSimpleItem(itemsAtlas, "rock1", 14.5f, 16f)
 
         addSimpleItem(itemsAtlas, "rock2", 18.5f, 16f)
@@ -79,6 +79,7 @@ class WorldBuilder {
         getRandomPositions().forEach { pos -> addTree(itemsAtlas, pos.x, pos.y) }
         getRandomPositions().forEach { pos -> addSimpleItem(itemsAtlas, "rock1", pos.x, pos.y) }
         getRandomPositions().forEach { pos -> addSimpleItem(itemsAtlas, "rock2", pos.x, pos.y) }
+        */
     }
 
     private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
@@ -93,7 +94,7 @@ class WorldBuilder {
 
         engine.entity {
             with<Transform> {
-                set(x, y)
+                set(x, y, 0f)
             }
             with<Collider> {
                 height = 0.4f
@@ -112,7 +113,7 @@ class WorldBuilder {
 
         engine.entity {
             with<Transform> {
-                set(x, y)
+                set(x, y, 0f)
             }
             with<Collider> {
                 set(0.8f, 0.4f)
@@ -140,25 +141,25 @@ class WorldBuilder {
 
     private fun addPlayer() {
 
-        val playersAtlas = assetManager.get<TextureAtlas>("players/players.atlas")
-        val playerRegion = playersAtlas.findRegion("player-walk-south-0")
-        val playerAnimations = buildPlayerAnimations("player", playersAtlas)
+        val playersAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
+        val playerRegion = playersAtlas.findRegion("ship")
+        //val playerAnimations = buildPlayerAnimations("player", playersAtlas)
 
         this.player = engine.entity {
             with<Transform> {
-                set(PlayerSpawnPositionX, PlayerSpawnPositionY)
+                set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
             }
             with<Rigidbody>()
             with<VisualSprite> {
-                add(Sprite(playerRegion, 2f, 2f, 0f, -0.7f))
+                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
             }
-            with<VisualAnimation> {
-                set(playerAnimations, "walk-east")
-            }
-            with<Avatar>()
-            with<MainAvatar>()
+            //with<VisualAnimation> {
+            //    set(playerAnimations, "walk-east")
+            //}
+            with<Ship>()
+            with<MainShip>()
             with<Collider> {
-                set(0.6f, 0.3f, 0f, 0.14f)
+                set(2f, 3f, 0f, 0f)
             }
         }
     }

@@ -18,7 +18,7 @@ class UpdateCameraSystem : IteratingSystem(allOf(Transform::class, Camera::class
         val followTransform = camera.followTransform
 
         if (followTransform != null) {
-            transform.set(followTransform.x, followTransform.y)
+            transform.set(followTransform.x, followTransform.y, 0f)
         }
 
         camera.update(transform.x, transform.y)

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.components.VisualSprite
@@ -97,7 +98,10 @@ class VisualSpriteRenderSystem : EntitySystem() {
                     height *= texture.packedHeight.toFloat() / texture.originalHeight.toFloat()
                 }
 
-                batch.draw(texture, targetX, targetY, width, height)
+                batch.draw(
+                    texture, targetX, targetY, width * 0.5f, height * 0.5f, width, height, 1f, 1f, transform.rot * MathUtils
+                        .radiansToDegrees
+                )
             }
         }
     }

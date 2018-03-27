@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer
+import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Collider
 import com.fangelo.libraries.ashley.components.Transform
@@ -52,12 +53,18 @@ class VisualDebugCollidersSystem : EntitySystem() {
         for (e in entities) {
             transform = this.transform.get(e)
             collider = this.collider.get(e)
-            drawCollider(collider, transform.x + collider.offsetX, transform.y + collider.offsetY)
+            drawCollider(collider, transform.x + collider.offsetX, transform.y + collider.offsetY, transform.rot)
         }
     }
 
-    private fun drawCollider(collider: Collider, x: Float, y: Float) {
-        shapeRenderer.rect(x - collider.width * 0.5f, y - collider.height * 0.5f, collider.width, collider.height)
+    private fun drawCollider(collider: Collider, x: Float, y: Float, rot: Float) {
+        shapeRenderer.rect(
+            x - collider.width * 0.5f, y - collider.height * 0.5f,
+            collider.width * 0.5f, collider.height * 0.5f,
+            collider.width, collider.height,
+            1f, 1f,
+            rot * MathUtils.radiansToDegrees
+        )
     }
 
     private fun beginRender(camera: Camera) {
