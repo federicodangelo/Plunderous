@@ -7,18 +7,21 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.BodyDef
 import com.fangelo.libraries.ashley.components.*
 import com.fangelo.libraries.ashley.data.Sprite
+import com.fangelo.libraries.ashley.systems.PhysicsSystem
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.entity
+import ktx.box2d.body
 import ktx.collections.toGdxArray
 import java.util.*
 
 class WorldBuilder {
 
-    private val MapWidth = 128
-    private val MapHeight = 128
+    private val MapWidth = 64
+    private val MapHeight = 64
 
     private val PlayerSpawnPositionX = MapWidth / 2.0f
     private val PlayerSpawnPositionY = MapHeight / 2.0f
@@ -34,9 +37,44 @@ class WorldBuilder {
         this.engine = engine
         this.assetManager = assetManager
 
+        addWorldBounds()
+
         addTilemap()
         addPlayer()
         addItems()
+    }
+
+    private fun addWorldBounds() {
+        val world = engine.getSystem(PhysicsSystem::class.java).world
+
+        //Left
+        world.body {
+            box(
+                height = MapHeight.toFloat(),
+                position = Vector2(0f, MapHeight * 0.5f)
+            )
+        }
+        //Right
+        world.body {
+            box(
+                height = MapHeight.toFloat(),
+                position = Vector2(MapWidth.toFloat(), MapHeight * 0.5f)
+            )
+        }
+        //Top
+        world.body {
+            box(
+                width = MapWidth.toFloat(),
+                position = Vector2(MapWidth * 0.5f, 0f)
+            )
+        }
+        //Bottom
+        world.body {
+            box(
+                width = MapWidth.toFloat(),
+                position = Vector2(MapWidth * 0.5f, MapHeight.toFloat())
+            )
+        }
     }
 
 
@@ -60,6 +98,7 @@ class WorldBuilder {
     }
 
     private fun buildTileset(tilesetAtlas: TextureAtlas): Array<TextureRegion> {
+
         return arrayOf(
             tilesetAtlas.findRegion("water")
         )
@@ -67,9 +106,9 @@ class WorldBuilder {
 
 
     private fun addItems() {
+        /*
         val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
 
-        /*
         addSimpleItem(itemsAtlas, "rock1", 14.5f, 16f)
 
         addSimpleItem(itemsAtlas, "rock2", 18.5f, 16f)
@@ -96,10 +135,6 @@ class WorldBuilder {
             with<Transform> {
                 set(x, y, 0f)
             }
-            with<Collider> {
-                height = 0.4f
-                setAnchorBottom()
-            }
             with<VisualSprite> {
                 add(Sprite(itemsAtlas.findRegion(name)).setAnchorBottom())
             }
@@ -114,10 +149,6 @@ class WorldBuilder {
         engine.entity {
             with<Transform> {
                 set(x, y, 0f)
-            }
-            with<Collider> {
-                set(0.8f, 0.4f)
-                setAnchorBottom()
             }
             with<VisualSprite> {
                 add(Sprite(itemsAtlas.findRegion("tree-trunk"), 2.0f, 2.3f))
@@ -141,15 +172,43 @@ class WorldBuilder {
 
     private fun addPlayer() {
 
+        val world = engine.getSystem(PhysicsSystem::class.java).world;
         val playersAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
         val playerRegion = playersAtlas.findRegion("ship")
         //val playerAnimations = buildPlayerAnimations("player", playersAtlas)
+
+        val shipBack = -1.25f
+        val shipBackHalfWidth = 0.4f
+
+        val shipMiddle = 0.5f
+        val shipMiddleHalfWidth = 0.6f
+
+        val shipFront = 1.45f
 
         this.player = engine.entity {
             with<Transform> {
                 set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
             }
-            with<Rigidbody>()
+            with<Rigidbody> {
+                set(
+                    world.body(BodyDef.BodyType.DynamicBody) {
+                        position.set(PlayerSpawnPositionX, PlayerSpawnPositionY)
+                        polygon(
+                            Vector2(-shipBackHalfWidth, shipBack),
+                            Vector2(-shipMiddleHalfWidth, shipMiddle),
+                            Vector2(0f, shipFront),
+                            Vector2(shipMiddleHalfWidth, shipMiddle),
+                            Vector2(shipBackHalfWidth, shipBack)
+                        ) {
+                            density = 1f
+                            restitution = 0f
+                            friction = 0.2f
+                        }
+                        linearDamping = 0.5f
+                        angularDamping = 0.5f
+                    }
+                )
+            }
             with<VisualSprite> {
                 add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
             }
@@ -158,9 +217,6 @@ class WorldBuilder {
             //}
             with<Ship>()
             with<MainShip>()
-            with<Collider> {
-                set(2f, 3f, 0f, 0f)
-            }
         }
     }
 

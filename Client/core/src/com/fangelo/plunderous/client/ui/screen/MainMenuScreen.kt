@@ -18,6 +18,8 @@ class MainMenuScreen : Screen() {
         addTextButton("About..", { showAboutScreen() })
         addTextButton("Settings", { showSettingsScreen() })
         addTextButton("Test Dialog", { showTestDialog() })
+
+        loadGame()
     }
 
     private fun loadGame() {

@@ -7,15 +7,17 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
-import com.fangelo.plunderous.client.game.systems.UpdateShipAnimationSystem
-import com.fangelo.plunderous.client.game.world.WorldBuilder
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.physics.box2d.World
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.systems.*
+import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.world.WorldBuilder
 import ktx.ashley.entity
 import ktx.ashley.get
 import ktx.assets.load
+import ktx.box2d.createWorld
 import kotlin.math.log2
 import kotlin.math.pow
 import kotlin.math.round
@@ -29,12 +31,15 @@ class Game {
     private var player: Entity? = null
     private val assetManager = AssetManager()
     private var debugEnabled = false
+    private val physicsWorld: World
 
     init {
 
         loadAssets()
 
         camera = addCamera()
+
+        physicsWorld = buildPhysicsWorld()
 
         initEngineSystems()
 
@@ -44,7 +49,8 @@ class Game {
 
         this.player = worldBuilder.player
 
-        disableDebug()
+        //disableDebug()
+        enableDebug()
 
         camera.followTransform = player?.get()
     }
@@ -56,24 +62,29 @@ class Game {
     }
 
     private fun initEngineSystems() {
+
+        engine.addSystem(PhysicsSystem(physicsWorld))
         engine.addSystem(UpdatePhysicsSystem())
         engine.addSystem(UpdateCameraSystem())
         engine.addSystem(ProcessShipInputSystem())
-        engine.addSystem(UpdateShipAnimationSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(VisualTilemapRenderSystem())
         engine.addSystem(VisualSpriteRenderSystem())
-        engine.addSystem(VisualDebugCollidersSystem())
+        engine.addSystem(VisualDebugPhysicsSystem())
+    }
+
+    private fun buildPhysicsWorld(): World {
+        return createWorld(gravity = Vector2())
     }
 
     private fun disableDebug() {
         debugEnabled = false
-        engine.getSystem(VisualDebugCollidersSystem::class.java).setProcessing(false)
+        engine.getSystem(VisualDebugPhysicsSystem::class.java).setProcessing(false)
     }
 
     private fun enableDebug() {
         debugEnabled = true
-        engine.getSystem(VisualDebugCollidersSystem::class.java).setProcessing(true)
+        engine.getSystem(VisualDebugPhysicsSystem::class.java).setProcessing(true)
     }
 
     private fun loadAssets() {
@@ -131,5 +142,6 @@ class Game {
 
     fun dispose() {
         assetManager.dispose()
+        physicsWorld.dispose()
     }
 }

@@ -1,12 +1,15 @@
 package com.fangelo.libraries.ashley.components
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.gdx.physics.box2d.Body
 
-class Rigidbody(var velocityX: Float = 0f, var velocityY: Float = 0f, var velocityRot: Float = 0f) : Component {
-    fun set(velocityX: Float, velocityY: Float, velocityRot: Float): Rigidbody {
-        this.velocityX = velocityX
-        this.velocityY = velocityY
-        this.velocityRot = velocityRot
-        return this
+class Rigidbody(var body: Body? = null) : Component {
+    fun set(body: Body) {
+        this.body = body
+    }
+
+    fun forcePosition(x: Float, y: Float, rotation: Float) {
+        val body = this.body ?: return
+        body.setTransform(x, y, rotation)
     }
 }

@@ -2,10 +2,10 @@ package com.fangelo.plunderous.client
 
 import com.badlogic.gdx.*
 import com.badlogic.gdx.graphics.GL20
-import com.fangelo.plunderous.client.ui.dialog.ConfirmDialog
-import com.fangelo.plunderous.client.ui.screen.MainMenuScreen
 import com.fangelo.libraries.ui.DialogResult
 import com.fangelo.libraries.ui.ScreenManager
+import com.fangelo.plunderous.client.ui.dialog.ConfirmDialog
+import com.fangelo.plunderous.client.ui.screen.MainMenuScreen
 import ktx.app.KtxApplicationAdapter
 
 private const val REF_HEIGHT_IN_PIXELS = 1366

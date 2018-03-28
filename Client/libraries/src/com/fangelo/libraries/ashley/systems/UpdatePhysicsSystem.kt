@@ -2,108 +2,60 @@ package com.fangelo.libraries.ashley.systems
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
-import com.badlogic.ashley.utils.ImmutableArray
-import com.fangelo.libraries.ashley.components.Collider
+import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.physics.box2d.World
 import com.fangelo.libraries.ashley.components.Rigidbody
 import com.fangelo.libraries.ashley.components.Transform
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
-class UpdatePhysicsSystem : EntitySystem() {
 
-    private lateinit var rigidbodies: ImmutableArray<Entity>
-    private lateinit var colliders: ImmutableArray<Entity>
+class UpdatePhysicsSystem : IteratingSystem(allOf(Rigidbody::class, Transform::class).get()) {
+
+    private val maxStepTime = 1 / 45f
+
+    private var accumulator = 0f
+    private val bodiesQueue = mutableListOf<Entity>()
 
     private val transform = mapperFor<Transform>()
     private val rigidbody = mapperFor<Rigidbody>()
-    private val collider = mapperFor<Collider>()
+    private var world: World? = null
 
     override fun addedToEngine(engine: Engine) {
-        rigidbodies = engine.getEntitiesFor(allOf(Transform::class, Rigidbody::class).get())
-        colliders = engine.getEntitiesFor(allOf(Transform::class, Collider::class).get())
+        super.addedToEngine(engine)
+        world = engine.getSystem(PhysicsSystem::class.java)?.world
     }
 
     override fun update(deltaTime: Float) {
-        for (re in rigidbodies) {
-            processEntity(re, deltaTime)
-        }
-    }
+        super.update(deltaTime)
 
-    private fun processEntity(entity: Entity, deltaTime: Float) {
-        val transform = transform.get(entity)
-        val rigidbody = rigidbody.get(entity)
-        val collider: Collider? = collider.get(entity)
+        val world = this.world ?: return
 
-        val dx = rigidbody.velocityX * deltaTime
-        val dy = rigidbody.velocityY * deltaTime
-        val drot = rigidbody.velocityRot * deltaTime
+        val frameTime = Math.min(deltaTime, 0.25f)
+        accumulator += frameTime
+        if (accumulator >= maxStepTime) {
+            world.step(maxStepTime, 6, 2)
+            accumulator -= maxStepTime
 
-        val oldX = transform.x
-        val oldY = transform.y
-        val oldRot = transform.rot
-
-        var newX = oldX + dx
-        var newY = oldY + dy
-        var newRot = oldRot + drot
-
-        if (collider != null) {
-            if (checkAgainstColliders(collider, newX, newY)) {
-                if (!checkAgainstColliders(collider, oldX, newY)) {
-                    newX = oldX
-                } else if (!checkAgainstColliders(collider, newX, oldY)) {
-                    newY = oldY
-                } else {
-                    newX = oldX
-                    newY = oldY
+            //Entity Queue
+            for (entity in bodiesQueue) {
+                val tfm = transform.get(entity)
+                val bodyComp = rigidbody.get(entity)
+                val body = bodyComp.body
+                if (body != null) {
+                    val position = body.position
+                    tfm.x = position.x
+                    tfm.y = position.y
+                    tfm.rotation = body.angle
                 }
             }
         }
 
-        transform.x = newX
-        transform.y = newY
-        transform.rot = newRot
+        bodiesQueue.clear()
     }
 
-    private fun checkAgainstColliders(collider: Collider, newX: Float, newY: Float): Boolean {
-        for (ce in colliders) {
-
-            val otherTransform = this.transform.get(ce)
-            val otherCollider = this.collider.get(ce)
-
-            if (otherCollider == collider)
-                continue
-
-            if (checkCollision(
-                    collider, newX + collider.offsetX, newY + collider.offsetY,
-                    otherCollider, otherTransform.x + otherCollider.offsetX, otherTransform.y + otherCollider.offsetY
-                )
-            )
-                return true
-        }
-
-        return false
-    }
-
-    private fun checkCollision(c1: Collider, x1: Float, y1: Float, c2: Collider, x2: Float, y2: Float): Boolean {
-
-        val half1width = c1.width * 0.5f
-        val half1height = c1.height * 0.5f
-
-        val rect1Left = x1 - half1width
-        val rect1Right = x1 + half1width
-        val rect1Top = y1 - half1height
-        val rect1Bottom = y1 + half1height
-
-        val half2width = c2.width * 0.5f
-        val half2height = c2.height * 0.5f
-
-        val rect2Left = x2 - half2width
-        val rect2Right = x2 + half2width
-        val rect2Top = y2 - half2height
-        val rect2Bottom = y2 + half2height
-
-        return rect1Left < rect2Right && rect1Right > rect2Left &&
-                rect1Top < rect2Bottom && rect1Bottom > rect2Top
+    override fun processEntity(entity: Entity?, deltaTime: Float) {
+        if (entity != null)
+            bodiesQueue.add(entity)
     }
 }

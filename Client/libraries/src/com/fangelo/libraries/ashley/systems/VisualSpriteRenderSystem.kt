@@ -99,7 +99,7 @@ class VisualSpriteRenderSystem : EntitySystem() {
                 }
 
                 batch.draw(
-                    texture, targetX, targetY, width * 0.5f, height * 0.5f, width, height, 1f, 1f, transform.rot * MathUtils
+                    texture, targetX, targetY, width * 0.5f, height * 0.5f, width, height, 1f, 1f, transform.rotation * MathUtils
                         .radiansToDegrees
                 )
             }
