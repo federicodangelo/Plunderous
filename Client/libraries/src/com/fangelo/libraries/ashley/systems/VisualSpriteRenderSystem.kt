@@ -23,14 +23,16 @@ class VisualSpriteRenderSystem : EntitySystem() {
     private val visual = mapperFor<VisualSprite>()
     private val camera = mapperFor<Camera>()
 
-    private val batch: SpriteBatch = SpriteBatch()
+    private lateinit var batch: SpriteBatch
 
     override fun addedToEngine(engine: Engine) {
+        batch = SpriteBatch()
         entities = engine.getEntitiesFor(allOf(Transform::class, VisualSprite::class).get())
         cameras = engine.getEntitiesFor(allOf(Camera::class).get())
     }
 
     override fun removedFromEngine(engine: Engine) {
+        batch.dispose()
     }
 
     override fun update(deltaTime: Float) {

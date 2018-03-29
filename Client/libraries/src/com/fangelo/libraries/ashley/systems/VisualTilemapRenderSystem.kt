@@ -22,22 +22,18 @@ class VisualTilemapRenderSystem : EntitySystem() {
     private val tilemap = mapperFor<Tilemap>()
     private val camera = mapperFor<Camera>()
 
-    private val batch: SpriteBatch
+    private lateinit var batch: SpriteBatch
     private val renderBoundsCalculator = VisualTilemapRenderBoundsCalculator()
 
-    init {
-        batch = SpriteBatch()
-    }
-
     override fun addedToEngine(engine: Engine) {
+        batch = SpriteBatch()
         entities = engine.getEntitiesFor(allOf(Transform::class, VisualTileset::class, Tilemap::class).get())
         cameras = engine.getEntitiesFor(allOf(Camera::class).get())
     }
 
-
     override fun removedFromEngine(engine: Engine) {
+        batch.dispose()
     }
-
 
     override fun update(deltaTime: Float) {
 

@@ -13,6 +13,7 @@ import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.systems.*
 import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.systems.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.world.WorldBuilder
 import ktx.ashley.entity
 import ktx.ashley.get
@@ -69,6 +70,7 @@ class Game {
         engine.addSystem(ProcessShipInputSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(VisualTilemapRenderSystem())
+        engine.addSystem(VisualIslandRenderSystem())
         engine.addSystem(VisualSpriteRenderSystem())
         engine.addSystem(VisualDebugPhysicsSystem())
     }

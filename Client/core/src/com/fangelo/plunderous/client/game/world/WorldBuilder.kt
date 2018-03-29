@@ -3,26 +3,27 @@ package com.fangelo.plunderous.client.game.world
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.g2d.Animation
+import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.fangelo.libraries.ashley.components.*
 import com.fangelo.libraries.ashley.data.Sprite
 import com.fangelo.libraries.ashley.systems.PhysicsSystem
+import com.fangelo.plunderous.client.game.components.island.Island
+import com.fangelo.plunderous.client.game.components.island.VisualIsland
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
-import ktx.collections.toGdxArray
-import java.util.*
 
 class WorldBuilder {
 
-    private val MapWidth = 64
-    private val MapHeight = 64
+    private val MapWidth = 128
+    private val MapHeight = 128
 
     private val PlayerSpawnPositionX = MapWidth / 2.0f
     private val PlayerSpawnPositionY = MapHeight / 2.0f
@@ -39,10 +40,50 @@ class WorldBuilder {
         this.assetManager = assetManager
 
         addWorldBounds()
-
         addTilemap()
         addPlayer()
+        addIslands()
         addItems()
+    }
+
+    private fun addIslands() {
+        getRandomPositions().forEach { pos -> addIsland(pos.x, pos.y, MathUtils.random(2.0f, 5.5f)) }
+    }
+
+    private fun addIsland(x: Float, y: Float, radius: Float) {
+
+        if (!isValidPosition(x, y))
+            return
+
+        engine.entity {
+            with<Transform> {
+                set(x, y, 0f)
+            }
+            with<Rigidbody> {
+                set(buildIslandBodyDefinition(radius))
+            }
+            with<Island> {
+                set(radius)
+            }
+            with<VisualIsland> {
+
+                set(Color.CORAL)
+            }
+        }
+
+        addIslandItems(radius, x, y)
+    }
+
+    private fun addIslandItems(radius: Float, x: Float, y: Float) {
+        val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
+
+        getRandomPositionsInsideCircle(radius - 1.0f, 5).forEach { pos ->
+            when (MathUtils.random(0, 2)) {
+                0 -> addSimpleItem(itemsAtlas, "rock1", pos.x + x, pos.y + y)
+                1 -> addSimpleItem(itemsAtlas, "rock2", pos.x + x, pos.y + y)
+                2 -> addTree(itemsAtlas, pos.x + x, pos.y + y)
+            }
+        }
     }
 
     private fun addWorldBounds() {
@@ -81,11 +122,10 @@ class WorldBuilder {
 
     private fun addTilemap() {
         val tilesetAtlas = assetManager.get<TextureAtlas>("tiles/tiles.atlas")
-        val rnd = Random()
         val tileset = buildTileset(tilesetAtlas)
         val width = MapWidth
         val height = MapHeight
-        val tiles = Array(width * height, { rnd.nextInt(tileset.size) })
+        val tiles = Array(width * height, { MathUtils.random(tileset.size - 1) })
 
         engine.entity {
             with<Transform>()
@@ -123,8 +163,20 @@ class WorldBuilder {
     }
 
     private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
-        val rnd = Random()
-        return Array(amount, { _ -> Vector2(rnd.nextFloat() * (MapWidth - 4) + 2f, rnd.nextFloat() * (MapHeight - 4) + 2f) })
+        return Array(amount, { _ -> Vector2(MathUtils.random() * (MapWidth - 4) + 2f, MathUtils.random() * (MapHeight - 4) + 2f) })
+    }
+
+    private fun getRandomPositionsInsideCircle(radius: Float, amount: Int = 25): Array<Vector2> {
+        return Array(amount, { _ -> clampToCircle(Vector2(MathUtils.random(-radius, radius), MathUtils.random(-radius, radius)), radius) })
+    }
+
+    private fun clampToCircle(vector: Vector2, radius: Float): Vector2 {
+
+        if (vector.len2() > radius * radius) {
+            vector.nor().scl(radius)
+        }
+
+        return vector
     }
 
     private fun addSimpleItem(itemsAtlas: TextureAtlas, name: String, x: Float, y: Float) {
@@ -132,12 +184,14 @@ class WorldBuilder {
         if (!isValidPosition(x, y))
             return
 
+        val scale = 0.5f
+
         engine.entity {
             with<Transform> {
                 set(x, y, 0f)
             }
             with<VisualSprite> {
-                add(Sprite(itemsAtlas.findRegion(name)).setAnchorBottom())
+                add(Sprite(itemsAtlas.findRegion(name), scale, scale).setAnchorBottom())
             }
         }
     }
@@ -147,27 +201,27 @@ class WorldBuilder {
         if (!isValidPosition(x, y))
             return
 
+        val scale = 0.25f
+
         engine.entity {
             with<Transform> {
                 set(x, y, 0f)
             }
             with<VisualSprite> {
-                add(Sprite(itemsAtlas.findRegion("tree-trunk"), 2.0f, 2.3f))
+                add(Sprite(itemsAtlas.findRegion("tree-trunk"), 2.0f * scale, 2.3f * scale))
                 sprites[0].setAnchorBottom()
-                sprites[0].offsetY += 0.25f
+                sprites[0].offsetY += 0.25f * scale
 
-                add(Sprite(itemsAtlas.findRegion("tree-leaves"), 3f, 2.5f, 0f, 0f))
+                add(Sprite(itemsAtlas.findRegion("tree-leaves"), 3f * scale, 2.5f * scale, 0f, 0f))
                 sprites[1].setAnchorBottom()
-                sprites[1].offsetY -= 1.75f
+                sprites[1].offsetY -= 1.75f * scale
             }
         }
     }
 
     private fun isValidPosition(x: Float, y: Float): Boolean {
-
-        return x >= PlayerSpawnPositionX + 1.5f || x <= PlayerSpawnPositionX - 1.5f ||
-                y >= PlayerSpawnPositionY + 1.5f || y <= PlayerSpawnPositionY - 1.5f
-
+        return x >= PlayerSpawnPositionX + 5.5f || x <= PlayerSpawnPositionX - 5.5f ||
+                y >= PlayerSpawnPositionY + 5.5f || y <= PlayerSpawnPositionY - 5.5f
     }
 
 
@@ -175,8 +229,23 @@ class WorldBuilder {
 
         val playersAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
         val playerRegion = playersAtlas.findRegion("ship")
-        //val playerAnimations = buildPlayerAnimations("player", playersAtlas)
 
+        this.player = engine.entity {
+            with<Transform> {
+                set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
+            }
+            with<Rigidbody> {
+                set(buildShipBodyDefinition())
+            }
+            with<VisualSprite> {
+                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
+            }
+            with<Ship>()
+            with<MainShip>()
+        }
+    }
+
+    private fun buildShipBodyDefinition(): BodyDefinition {
         val shipBack = -1.25f
         val shipBackHalfWidth = 0.4f
 
@@ -202,50 +271,15 @@ class WorldBuilder {
         }
         playerBodyDefinition.linearDamping = 0.5f
         playerBodyDefinition.angularDamping = 0.5f
-
-        this.player = engine.entity {
-            with<Transform> {
-                set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
-            }
-            with<Rigidbody> {
-                set(playerBodyDefinition)
-            }
-            with<VisualSprite> {
-                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
-            }
-            //with<VisualAnimation> {
-            //    set(playerAnimations, "walk-east")
-            //}
-            with<Ship>()
-            with<MainShip>()
-        }
+        return playerBodyDefinition
     }
 
-    private fun buildPlayerAnimations(playerName: String, playersAtlas: TextureAtlas): Map<String, Animation<TextureRegion>> {
-        val animations = mutableMapOf<String, Animation<TextureRegion>>()
+    private fun buildIslandBodyDefinition(radius: Float): BodyDefinition {
+        var islandBodyDefinition = BodyDefinition()
 
-        addAnimations(animations, playersAtlas, playerName, "walk-north", 9, Animation.PlayMode.LOOP)
-        addAnimations(animations, playersAtlas, playerName, "walk-west", 9, Animation.PlayMode.LOOP)
-        addAnimations(animations, playersAtlas, playerName, "walk-south", 9, Animation.PlayMode.LOOP)
-        addAnimations(animations, playersAtlas, playerName, "walk-east", 9, Animation.PlayMode.LOOP)
+        islandBodyDefinition.type = BodyDef.BodyType.StaticBody
+        islandBodyDefinition.circle(radius)
 
-        return animations
-    }
-
-    private fun addAnimations(
-        animations: MutableMap<String, Animation<TextureRegion>>, atlas: TextureAtlas, playerName: String, animationPrefix: String,
-        totalFrames: Int, playMode: Animation.PlayMode
-    ) {
-
-        val frames: MutableList<TextureRegion> = mutableListOf()
-
-        for (frameNumber in 0 until totalFrames) {
-            val frame = atlas.findRegion("$playerName-$animationPrefix-$frameNumber")!!
-            frames.add(frame)
-        }
-
-        val animation = Animation<TextureRegion>(0.1f, frames.toGdxArray(), playMode)
-
-        animations[animationPrefix] = animation
+        return islandBodyDefinition
     }
 }

@@ -1,6 +1,6 @@
 
 items.png
-size: 64,32
+size: 1024,128
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -13,8 +13,36 @@ cannon
   index: -1
 cannonBall
   rotate: false
-  xy: 32, 1
+  xy: 99, 1
   size: 10, 10
   orig: 10, 10
+  offset: 0, 0
+  index: -1
+rock1
+  rotate: false
+  xy: 197, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+rock2
+  rotate: false
+  xy: 295, 1
+  size: 32, 32
+  orig: 32, 32
+  offset: 0, 0
+  index: -1
+tree-leaves
+  rotate: false
+  xy: 393, 1
+  size: 96, 80
+  orig: 96, 80
+  offset: 0, 0
+  index: -1
+tree-trunk
+  rotate: false
+  xy: 491, 1
+  size: 64, 73
+  orig: 64, 73
   offset: 0, 0
   index: -1

@@ -13,22 +13,19 @@ import ktx.ashley.mapperFor
 
 class VisualDebugPhysicsSystem : EntitySystem() {
 
-    private var debugRenderer: Box2DDebugRenderer
+    private lateinit var debugRenderer: Box2DDebugRenderer
     private lateinit var cameras: ImmutableArray<Entity>
     private val camera = mapperFor<Camera>()
     private var world: World? = null
 
-    init {
-        debugRenderer = Box2DDebugRenderer()
-        //debugRenderer.isDrawVelocities = true
-    }
-
     override fun addedToEngine(engine: Engine) {
+        debugRenderer = Box2DDebugRenderer()
         cameras = engine.getEntitiesFor(allOf(Camera::class).get())
         world = engine.getSystem(PhysicsSystem::class.java).world
     }
 
     override fun removedFromEngine(engine: Engine) {
+        debugRenderer.dispose()
     }
 
     override fun update(deltaTime: Float) {
