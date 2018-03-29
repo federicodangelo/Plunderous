@@ -144,6 +144,7 @@ class Game {
 
     fun dispose() {
         engine.removeAllEntities()
+        engine.systems.toArray().forEach { system -> engine.removeSystem(system) }
         assetManager.dispose()
         physicsWorld.dispose()
     }

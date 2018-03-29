@@ -20,6 +20,10 @@ class PhysicsSystem(var world: World) : EntitySystem(), EntityListener {
         engine.addEntityListener(allOf(Transform::class, Rigidbody::class).get(), this)
     }
 
+    override fun removedFromEngine(engine: Engine) {
+        engine.removeEntityListener(this)
+    }
+
     override fun entityAdded(entity: Entity?) {
         val rigidbody = this.rigidbody.get(entity)
         initRigidbody(entity, rigidbody)
