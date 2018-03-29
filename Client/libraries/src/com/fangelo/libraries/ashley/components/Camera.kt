@@ -3,6 +3,8 @@ package com.fangelo.libraries.ashley.components
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.OrthographicCamera
 import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
 
 class Camera : Component {
 
@@ -12,7 +14,7 @@ class Camera : Component {
 
     private var camera = OrthographicCamera()
 
-    val native : OrthographicCamera
+    val native: OrthographicCamera
         get() = this.camera
 
     var zoom: Float
@@ -60,4 +62,16 @@ class Camera : Component {
 
     val viewportHeight: Float
         get() = camera.viewportHeight
+
+    fun screenPositionToWorldPosition(x: Float, y: Float) : Vector2 {
+        val vec = Vector3(x, y, 0f)
+        native.unproject(vec)
+        return Vector2(vec.x, vec.y)
+    }
+
+    fun worldPositionToScreenPosition(x: Float, y: Float) : Vector2 {
+        val vec = Vector3(x, y, 0f)
+        native.project(vec)
+        return Vector2(vec.x, vec.y)
+    }
 }
