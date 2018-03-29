@@ -19,17 +19,15 @@ class UpdatePhysicsSystem : IteratingSystem(allOf(Rigidbody::class, Transform::c
 
     private val transform = mapperFor<Transform>()
     private val rigidbody = mapperFor<Rigidbody>()
-    private var world: World? = null
+    private lateinit var world: World
 
     override fun addedToEngine(engine: Engine) {
         super.addedToEngine(engine)
-        world = engine.getSystem(PhysicsSystem::class.java)?.world
+        world = engine.getSystem(PhysicsSystem::class.java).world
     }
 
     override fun update(deltaTime: Float) {
         super.update(deltaTime)
-
-        val world = this.world ?: return
 
         val frameTime = Math.min(deltaTime, 0.25f)
         accumulator += frameTime

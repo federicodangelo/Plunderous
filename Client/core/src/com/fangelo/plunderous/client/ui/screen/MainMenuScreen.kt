@@ -9,6 +9,10 @@ import ktx.actors.onChange
 
 class MainMenuScreen : Screen() {
 
+    object Static {
+        var firstTime = true
+    }
+
     init {
         setBackground("panel-brown")
 
@@ -19,7 +23,10 @@ class MainMenuScreen : Screen() {
         addTextButton("Settings", { showSettingsScreen() })
         addTextButton("Test Dialog", { showTestDialog() })
 
-        loadGame()
+        if (Static.firstTime) {
+            Static.firstTime = false
+            loadGame()
+        }
     }
 
     private fun loadGame() {

@@ -141,6 +141,7 @@ class Game {
     }
 
     fun dispose() {
+        engine.removeAllEntities()
         assetManager.dispose()
         physicsWorld.dispose()
     }

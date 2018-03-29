@@ -2,14 +2,13 @@ package com.fangelo.libraries.ashley.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.physics.box2d.BodyDef
+import ktx.box2d.BodyDefinition
 
-class Rigidbody(var body: Body? = null) : Component {
-    fun set(body: Body) {
-        this.body = body
-    }
+class Rigidbody(var definition: BodyDefinition? = null) : Component {
+    var body: Body? = null
 
-    fun forcePosition(x: Float, y: Float, rotation: Float) {
-        val body = this.body ?: return
-        body.setTransform(x, y, rotation)
+    fun set(definition: BodyDefinition) {
+        this.definition = definition
     }
 }

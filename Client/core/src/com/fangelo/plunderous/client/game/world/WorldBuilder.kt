@@ -14,6 +14,7 @@ import com.fangelo.libraries.ashley.systems.PhysicsSystem
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.entity
+import ktx.box2d.BodyDefinition
 import ktx.box2d.body
 import ktx.collections.toGdxArray
 import java.util.*
@@ -172,7 +173,6 @@ class WorldBuilder {
 
     private fun addPlayer() {
 
-        val world = engine.getSystem(PhysicsSystem::class.java).world;
         val playersAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
         val playerRegion = playersAtlas.findRegion("ship")
         //val playerAnimations = buildPlayerAnimations("player", playersAtlas)
@@ -185,29 +185,30 @@ class WorldBuilder {
 
         val shipFront = 1.45f
 
+        val playerBodyDefinition = BodyDefinition()
+
+        playerBodyDefinition.type = BodyDef.BodyType.DynamicBody
+
+        playerBodyDefinition.polygon(
+            Vector2(-shipBackHalfWidth, shipBack),
+            Vector2(-shipMiddleHalfWidth, shipMiddle),
+            Vector2(0f, shipFront),
+            Vector2(shipMiddleHalfWidth, shipMiddle),
+            Vector2(shipBackHalfWidth, shipBack)
+        ) {
+            density = 1f
+            restitution = 0f
+            friction = 0.2f
+        }
+        playerBodyDefinition.linearDamping = 0.5f
+        playerBodyDefinition.angularDamping = 0.5f
+
         this.player = engine.entity {
             with<Transform> {
                 set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
             }
             with<Rigidbody> {
-                set(
-                    world.body(BodyDef.BodyType.DynamicBody) {
-                        position.set(PlayerSpawnPositionX, PlayerSpawnPositionY)
-                        polygon(
-                            Vector2(-shipBackHalfWidth, shipBack),
-                            Vector2(-shipMiddleHalfWidth, shipMiddle),
-                            Vector2(0f, shipFront),
-                            Vector2(shipMiddleHalfWidth, shipMiddle),
-                            Vector2(shipBackHalfWidth, shipBack)
-                        ) {
-                            density = 1f
-                            restitution = 0f
-                            friction = 0.2f
-                        }
-                        linearDamping = 0.5f
-                        angularDamping = 0.5f
-                    }
-                )
+                set(playerBodyDefinition)
             }
             with<VisualSprite> {
                 add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
