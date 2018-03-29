@@ -1,6 +1,7 @@
 package com.fangelo.plunderous.client.ui.screen
 
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.fangelo.libraries.debug.DebugSettings
 import com.fangelo.plunderous.client.ui.dialog.LoadingGameDialog
 import com.fangelo.plunderous.client.ui.dialog.TestDialog
 import com.fangelo.libraries.ui.Screen
@@ -25,6 +26,7 @@ class MainMenuScreen : Screen() {
 
         if (Static.firstTime) {
             Static.firstTime = false
+            DebugSettings.showFps = true
             loadGame()
         }
     }

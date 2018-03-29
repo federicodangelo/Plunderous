@@ -242,6 +242,10 @@ class WorldBuilder {
             }
             with<Ship>()
             with<MainShip>()
+            with<Light>{
+                distance = 10.0f
+                color = Color.WHITE
+            }
         }
     }
 

@@ -31,8 +31,8 @@ class PhysicsSystem(var world: World) : EntitySystem(), EntityListener {
 
     override fun entityRemoved(entity: Entity?) {
         val rigidbody = this.rigidbody.get(entity)
-        world.destroyBody(rigidbody.body)
-        rigidbody.body = null
+        world.destroyBody(rigidbody.native)
+        rigidbody.native = null
     }
 
     private fun initRigidbody(entity: Entity?, rigidbody: Rigidbody) {
@@ -46,7 +46,7 @@ class PhysicsSystem(var world: World) : EntitySystem(), EntityListener {
         initFixtures(rigidbody, body, bodyDefinition)
         bodyDefinition.creationCallback?.let { it(body) }
 
-        rigidbody.body = body
+        rigidbody.native = body
     }
 
     private fun updateFromTransform(bodyDefinition: BodyDefinition, transform: Transform) {

@@ -39,7 +39,7 @@ class UpdatePhysicsSystem : IteratingSystem(allOf(Rigidbody::class, Transform::c
             for (entity in bodiesQueue) {
                 val tfm = transform.get(entity)
                 val bodyComp = rigidbody.get(entity)
-                val body = bodyComp.body
+                val body = bodyComp.native
                 if (body != null) {
                     val position = body.position
                     tfm.x = position.x

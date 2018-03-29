@@ -12,6 +12,9 @@ class Camera : Component {
 
     private var camera = OrthographicCamera()
 
+    val native : OrthographicCamera
+        get() = this.camera
+
     var zoom: Float
         get() = camera.zoom
         set(value) {

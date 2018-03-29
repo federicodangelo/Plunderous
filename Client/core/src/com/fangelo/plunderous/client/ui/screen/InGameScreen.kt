@@ -3,9 +3,9 @@ package com.fangelo.plunderous.client.ui.screen
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
-import com.fangelo.plunderous.client.Globals
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
+import com.fangelo.plunderous.client.Globals
 import ktx.actors.onChange
 
 class InGameScreen : Screen() {
@@ -33,6 +33,8 @@ class InGameScreen : Screen() {
         container.addActor(bottomLeftContainer)
 
         addExitButton()
+
+        addDebugButtons()
     }
 
     override fun onLayout() {
@@ -70,6 +72,20 @@ class InGameScreen : Screen() {
         }
 
         topRightContainer.add(exitButton).minWidth(75f).padTop(5f).padRight(5f)
+    }
+
+    private fun addDebugButtons() {
+        val lightsButton = TextButton("Lights", skin)
+        lightsButton.onChange {
+            Globals.activeGame?.switchLights()
+        }
+        bottomRightContainer.add(lightsButton).minWidth(75f).padBottom(5f).padRight(5f)
+
+        val drawDebugButton = TextButton("Draw Debug", skin)
+        drawDebugButton.onChange {
+            Globals.activeGame?.switchDrawDebug()
+        }
+        bottomRightContainer.add(drawDebugButton).padBottom(5f).padRight(5f)
     }
 
     private fun returnToMainScreen() {

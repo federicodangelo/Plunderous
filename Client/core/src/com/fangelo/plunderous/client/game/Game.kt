@@ -72,6 +72,7 @@ class Game {
         engine.addSystem(VisualTilemapRenderSystem())
         engine.addSystem(VisualIslandRenderSystem())
         engine.addSystem(VisualSpriteRenderSystem())
+        engine.addSystem(VisualLightsRenderSystem())
         engine.addSystem(VisualDebugPhysicsSystem())
     }
 
@@ -147,5 +148,17 @@ class Game {
         engine.systems.toArray().forEach { system -> engine.removeSystem(system) }
         assetManager.dispose()
         physicsWorld.dispose()
+    }
+
+    fun switchLights() {
+        val lightsRenderSystem = engine.getSystem(VisualLightsRenderSystem::class.java)
+        lightsRenderSystem.setProcessing(!lightsRenderSystem.checkProcessing())
+    }
+
+    fun switchDrawDebug() {
+        if (debugEnabled)
+            disableDebug()
+        else
+            enableDebug()
     }
 }

@@ -22,7 +22,7 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         val ship = ship.get(entity)
         val transform = transform.get(entity)
 
-        val body = rigidbody.body ?: return
+        val body = rigidbody.native ?: return
 
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
             body.applyTorque(ship.rotationForce, true)
