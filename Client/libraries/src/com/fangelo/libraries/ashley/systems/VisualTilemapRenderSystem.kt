@@ -9,6 +9,8 @@ import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Tilemap
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.components.VisualTileset
+import com.fangelo.libraries.ashley.systems.utils.VisualTilemapRenderBounds
+import com.fangelo.libraries.ashley.systems.utils.VisualTilemapRenderBoundsCalculator
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 

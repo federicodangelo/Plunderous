@@ -1,8 +1,5 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.ashley.systems.utils
 
-import com.badlogic.gdx.math.Matrix4
-import com.badlogic.gdx.math.Vector3
-import com.badlogic.gdx.math.collision.BoundingBox
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Tilemap
 import com.fangelo.libraries.ashley.components.Transform
