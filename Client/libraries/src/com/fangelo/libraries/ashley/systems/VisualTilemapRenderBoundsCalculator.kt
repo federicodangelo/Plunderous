@@ -15,18 +15,10 @@ class VisualTilemapRenderBoundsCalculator {
         camera: Camera, cameraTransform: Transform, tilemap: Tilemap, tilemapTransform: Transform, toReturn: VisualTilemapRenderBounds? = null
     ): VisualTilemapRenderBounds {
 
-        var cameraBoundingBox = BoundingBox()
+        var cameraBoundingBox = camera.worldBoundingBox()
 
-        cameraBoundingBox.ext(
-            BoundingBox(
-                Vector3(-camera.viewportWidth * 0.5f, -camera.viewportHeight * 0.5f, 0f),
-                Vector3(camera.viewportWidth * 0.5f, camera.viewportHeight * 0.5f, 0f)
-            ),
-            Matrix4().rotateRad(0f, 0f, -1f, cameraTransform.rotation)
-        )
-
-        val viewPortWidth = cameraBoundingBox.width * camera.zoom + EXTRA_TILES_TO_DRAW * 2
-        val viewPortHeight = cameraBoundingBox.height * camera.zoom + EXTRA_TILES_TO_DRAW * 2
+        val viewPortWidth = cameraBoundingBox.width + EXTRA_TILES_TO_DRAW * 2
+        val viewPortHeight = cameraBoundingBox.height + EXTRA_TILES_TO_DRAW * 2
         val cameraPositionX = cameraTransform.x - EXTRA_TILES_TO_DRAW
         val cameraPositionY = cameraTransform.y + EXTRA_TILES_TO_DRAW
 

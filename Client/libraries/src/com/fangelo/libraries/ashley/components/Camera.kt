@@ -2,7 +2,11 @@ package com.fangelo.libraries.ashley.components
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.OrthographicCamera
-import com.badlogic.gdx.math.*
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 
 class Camera : Component {
 
@@ -88,5 +92,16 @@ class Camera : Component {
         val vec = Vector3(x, y, 0f)
         native.project(vec)
         return Vector2(vec.x, vec.y)
+    }
+
+    fun worldBoundingBox(): BoundingBox {
+        var cameraBoundingBox = BoundingBox(
+            Vector3(-viewportWidth * zoom * 0.5f, -viewportHeight * zoom * 0.5f, 0f).add(camera.position),
+            Vector3(viewportWidth * zoom * 0.5f, viewportHeight * zoom * 0.5f, 0f).add(camera.position)
+        )
+
+        cameraBoundingBox.mul(Matrix4().rotateRad(0f, 0f, -1f, rotation))
+
+        return cameraBoundingBox
     }
 }
