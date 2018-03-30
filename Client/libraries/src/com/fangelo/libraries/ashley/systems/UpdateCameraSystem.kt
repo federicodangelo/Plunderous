@@ -2,6 +2,7 @@ package com.fangelo.libraries.ashley.systems
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
+import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import ktx.ashley.allOf
@@ -18,9 +19,9 @@ class UpdateCameraSystem : IteratingSystem(allOf(Transform::class, Camera::class
         val followTransform = camera.followTransform
 
         if (followTransform != null) {
-            transform.set(followTransform.x, followTransform.y, 0f)
+            transform.set(followTransform.x, followTransform.y, if (camera.followTransformRotation) followTransform.rotation else MathUtils.PI)
         }
 
-        camera.update(transform.x, transform.y)
+        camera.update(transform.x, transform.y, transform.rotation)
     }
 }

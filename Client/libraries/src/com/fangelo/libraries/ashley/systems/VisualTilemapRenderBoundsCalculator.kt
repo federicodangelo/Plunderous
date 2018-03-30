@@ -1,5 +1,8 @@
 package com.fangelo.libraries.ashley.systems
 
+import com.badlogic.gdx.math.Matrix4
+import com.badlogic.gdx.math.Vector3
+import com.badlogic.gdx.math.collision.BoundingBox
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Tilemap
 import com.fangelo.libraries.ashley.components.Transform
@@ -12,8 +15,18 @@ class VisualTilemapRenderBoundsCalculator {
         camera: Camera, cameraTransform: Transform, tilemap: Tilemap, tilemapTransform: Transform, toReturn: VisualTilemapRenderBounds? = null
     ): VisualTilemapRenderBounds {
 
-        val viewPortWidth = camera.viewportWidth * camera.zoom + EXTRA_TILES_TO_DRAW * 2
-        val viewPortHeight = camera.viewportHeight * camera.zoom + EXTRA_TILES_TO_DRAW * 2
+        var cameraBoundingBox = BoundingBox()
+
+        cameraBoundingBox.ext(
+            BoundingBox(
+                Vector3(-camera.viewportWidth * 0.5f, -camera.viewportHeight * 0.5f, 0f),
+                Vector3(camera.viewportWidth * 0.5f, camera.viewportHeight * 0.5f, 0f)
+            ),
+            Matrix4().rotateRad(0f, 0f, -1f, cameraTransform.rotation)
+        )
+
+        val viewPortWidth = cameraBoundingBox.width * camera.zoom + EXTRA_TILES_TO_DRAW * 2
+        val viewPortHeight = cameraBoundingBox.height * camera.zoom + EXTRA_TILES_TO_DRAW * 2
         val cameraPositionX = cameraTransform.x - EXTRA_TILES_TO_DRAW
         val cameraPositionY = cameraTransform.y + EXTRA_TILES_TO_DRAW
 

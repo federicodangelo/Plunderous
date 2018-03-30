@@ -3,8 +3,11 @@ package com.fangelo.libraries.ui
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Button
 import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Skin
 import com.badlogic.gdx.scenes.scene2d.ui.Table
@@ -225,6 +228,23 @@ object ScreenManager {
         activeDialog = dialog
         dialog.internalShow(this)
         return dialog
+    }
+
+    fun isUiAtScreenPosition(x: Float, y: Float): Boolean {
+        val vector = Vector2(x, y)
+        stage.screenToStageCoordinates(vector)
+        val hit = stage.hit(vector.x, vector.y, true)
+        return isButton(hit)
+    }
+
+    private fun isButton(actor: Actor?): Boolean {
+        if (actor == null)
+            return false
+
+        if (actor is Button)
+            return true
+
+        return isButton(actor.parent)
     }
 
     internal fun internalDialogClosed(dialog: Dialog) {

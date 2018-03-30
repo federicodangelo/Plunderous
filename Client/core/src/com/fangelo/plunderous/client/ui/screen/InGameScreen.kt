@@ -1,11 +1,13 @@
 package com.fangelo.plunderous.client.ui.screen
 
+import com.badlogic.gdx.scenes.scene2d.ui.Label
 import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.Globals
+import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.actors.onChange
 
 class InGameScreen : Screen() {
@@ -16,6 +18,8 @@ class InGameScreen : Screen() {
     private val bottomLeftContainer: Table
 
     private val container: WidgetGroup
+
+    private val rudderRotationLabel: Label
 
     init {
 
@@ -35,6 +39,8 @@ class InGameScreen : Screen() {
         addExitButton()
 
         addDebugButtons()
+
+        rudderRotationLabel = addRudderRotationLabel()
     }
 
     override fun onLayout() {
@@ -63,6 +69,16 @@ class InGameScreen : Screen() {
         )
     }
 
+    override fun onUpdate(deltaTime: Float) {
+        updateRudderLabel()
+    }
+
+    private fun updateRudderLabel() {
+        val game = Globals.activeGame ?: return
+        val rudderRotation = game.player?.getComponent(Ship::class.java)?.rudderRotation ?: 0f
+        rudderRotationLabel.setText("Rudder Rot: ${(rudderRotation)}")
+    }
+
 
     private fun addExitButton() {
         val exitButton = TextButton("Exit", skin)
@@ -87,6 +103,15 @@ class InGameScreen : Screen() {
         }
         bottomRightContainer.add(drawDebugButton).padBottom(5f).padRight(5f)
     }
+
+    private fun addRudderRotationLabel(): Label {
+        var label = Label("", skin)
+
+        bottomLeftContainer.add(label).padBottom(5f).padLeft(5f)
+
+        return label
+    }
+
 
     private fun returnToMainScreen() {
         Globals.activeGame?.dispose()

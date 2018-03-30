@@ -12,8 +12,10 @@ object DesktopLauncher {
         //config.width = 1366 //landscape!
         //config.height = 768
 
-        config.width = 768 //portrait!
-        config.height = 1366
+        val scale = 0.7f
+
+        config.width = (768 * scale).toInt() //portrait!
+        config.height = (1366 * scale).toInt()
         config.forceExit = false //prevents error report by gradle after finishing running / debugging
 
         DesktopPlatformAdapter()

@@ -19,17 +19,16 @@ import ktx.ashley.entity
 import ktx.ashley.get
 import ktx.assets.load
 import ktx.box2d.createWorld
-import kotlin.math.log2
-import kotlin.math.pow
-import kotlin.math.round
 
 private const val REF_HEIGHT_IN_TILES = 32
 
 class Game {
 
+    var player: Entity? = null
+        private set
+
     private val engine = PooledEngine()
     private val camera: Camera
-    private var player: Entity? = null
     private val assetManager = AssetManager()
     private var debugEnabled = false
     private val physicsWorld: World
@@ -52,6 +51,7 @@ class Game {
 
         //disableDebug()
         enableDebug()
+        switchLights()
 
         camera.followTransform = player?.get()
     }
@@ -122,25 +122,9 @@ class Game {
     }
 
     fun resize(width: Int, height: Int) {
-
         var scale = height.toDouble() / REF_HEIGHT_IN_TILES.toDouble()
-
-        scale = roundToNearestPowOfTwo(scale)
-
         scale = 1.0 / scale
-
         camera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
-    }
-
-    private fun roundToNearestPowOfTwo(scale: Double): Double {
-
-        var n = log2(scale)
-
-        n = round(n)
-
-        n = 2.0.pow(n)
-
-        return n
     }
 
     fun dispose() {

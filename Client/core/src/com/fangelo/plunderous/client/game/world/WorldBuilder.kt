@@ -274,7 +274,7 @@ class WorldBuilder {
             friction = 0.2f
         }
         playerBodyDefinition.linearDamping = 0.5f
-        playerBodyDefinition.angularDamping = 0.5f
+        playerBodyDefinition.angularDamping = 0.9f
         return playerBodyDefinition
     }
 

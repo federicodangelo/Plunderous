@@ -6,14 +6,21 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
+import com.badlogic.gdx.math.MathUtils
+import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Rigidbody
 import com.fangelo.libraries.ashley.components.Transform
+import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
+import kotlin.math.absoluteValue
+
+
+class ShipInput(var left: Boolean = false, var right: Boolean = false, var forward: Boolean = false)
 
 class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::class, MainShip::class, Transform::class).get()) {
     private val transform = mapperFor<Transform>()
@@ -34,12 +41,93 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         val body = rigidbody.native ?: return
 
-        handleTouch(body, ship, transform)
+        val shipInput = ShipInput()
 
-        handleKeyboard(body, ship, transform)
+        getTouchInput(shipInput, transform)
+
+        getKeyboardInput(shipInput)
+
+        updateRudder(shipInput, ship, deltaTime)
+
+        updatePhysics(body, ship, shipInput)
     }
 
-    private fun handleTouch(body: Body, ship: Ship, transform: Transform) {
+    private fun updatePhysics(body: Body, ship: Ship, shipInput: ShipInput) {
+        updateFriction(body)
+        updateDrive(ship, body, shipInput)
+        updateTorque(ship, body)
+    }
+
+    private fun updateTorque(ship: Ship, body: Body) {
+        var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
+        var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
+
+        var torqueForce = (currentSpeed / ship.maxSpeed) * (ship.rudderRotation / ship.maxRudderRotation) * ship.maxRudderTorque
+
+        if (torqueForce.absoluteValue > 0.01f)
+            body.applyTorque(torqueForce, true)
+    }
+
+    private fun updateDrive(ship: Ship, body: Body, shipInput: ShipInput) {
+
+        var desiredSpeed = 0f
+        if (shipInput.forward)
+            desiredSpeed = ship.maxSpeed
+
+        //find current speed in forward direction
+        var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
+        var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
+
+        //apply necessary force
+        var force = when {
+            desiredSpeed > currentSpeed -> ship.maxDriveForce
+            else -> 0f
+        }
+
+        if (force.absoluteValue > 0.01f)
+            body.applyForce(currentForwardNormal.scl(force), body.worldCenter, true)
+    }
+
+    private fun updateFriction(body: Body) {
+        var impulse = getLateralVelocity(body).scl(-body.mass)
+
+        val maxLateralImpulse = 3f
+        impulse.limit(maxLateralImpulse)
+
+        body.applyLinearImpulse(impulse, body.worldCenter, true)
+    }
+
+    private fun getLateralVelocity(body: Body): Vector2 {
+        val currentRightNormal = body.getWorldVector(Vector2(1f, 0f)).cpy()
+        return currentRightNormal.scl(currentRightNormal.cpy().dot(body.linearVelocity))
+    }
+
+    private fun getForwardVelocity(body: Body): Vector2 {
+        val currentForwardNormal = body.getWorldVector(Vector2(0f, 1f)).cpy()
+        return currentForwardNormal.scl(currentForwardNormal.cpy().dot(body.linearVelocity))
+    }
+
+    private fun updateRudder(shipInput: ShipInput, ship: Ship, deltaTime: Float) {
+        if (shipInput.right)
+            rotateRudderRight(ship, deltaTime)
+
+        if (shipInput.left)
+            rotateRudderLeft(ship, deltaTime)
+    }
+
+    private fun rotateRudderLeft(ship: Ship, deltaTime: Float) {
+        ship.rudderRotation = MathUtils.clamp(
+            ship.rudderRotation - ship.rudderRotationSpeed * deltaTime, -ship.maxRudderRotation, ship.maxRudderRotation
+        )
+    }
+
+    private fun rotateRudderRight(ship: Ship, deltaTime: Float) {
+        ship.rudderRotation = MathUtils.clamp(
+            ship.rudderRotation + ship.rudderRotationSpeed * deltaTime, -ship.maxRudderRotation, ship.maxRudderRotation
+        )
+    }
+
+    private fun getTouchInput(shipInput: ShipInput, transform: Transform) {
         if (!Gdx.input.isTouched)
             return
 
@@ -50,6 +138,9 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         val x = Gdx.input.x
         val y = Gdx.input.y
+
+        if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
+            return
 
         val shipForward = transform.forward
         val shipRight = transform.right
@@ -62,45 +153,24 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         val rightDistance = touchWorldPos.dot(shipRight)
 
         if (forwardDistance > 2.0f) {
-            moveForward(transform, body, ship)
-        } else if (forwardDistance < -2.0f) {
-            moveBackwards(transform, body, ship)
+            shipInput.forward = true
         }
 
         if (rightDistance > 2.0f) {
-            rotateRight(body, ship)
+            shipInput.right = true
         } else if (rightDistance < -2.0f) {
-            rotateLeft(body, ship)
+            shipInput.left = true
         }
     }
 
-    private fun handleKeyboard(body: Body, ship: Ship, transform: Transform) {
+    private fun getKeyboardInput(shipInput: ShipInput) {
         if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            rotateRight(body, ship)
+            shipInput.right = true
 
         if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            rotateLeft(body, ship)
+            shipInput.left = true
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP))
-            moveForward(transform, body, ship)
-
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-            moveBackwards(transform, body, ship)
-    }
-
-    private fun rotateLeft(body: Body, ship: Ship) {
-        body.applyTorque(-ship.rotationForce, true)
-    }
-
-    private fun rotateRight(body: Body, ship: Ship) {
-        body.applyTorque(ship.rotationForce, true)
-    }
-
-    private fun moveForward(transform: Transform, body: Body, ship: Ship) {
-        body.applyForceToCenter(transform.forward.scl(ship.moveForce), true)
-    }
-
-    private fun moveBackwards(transform: Transform, body: Body, ship: Ship) {
-        body.applyForceToCenter(transform.backward.scl(ship.moveForce), true)
+            shipInput.forward = true
     }
 }
