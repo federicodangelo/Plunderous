@@ -20,7 +20,7 @@ import ktx.ashley.mapperFor
 import kotlin.math.absoluteValue
 
 
-class ShipInput(var left: Boolean = false, var right: Boolean = false, var forward: Boolean = false)
+class ShipInput(var left: Boolean = false, var right: Boolean = false, var forward: Boolean = false, var backward: Boolean = false)
 
 class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::class, MainShip::class, Transform::class).get()) {
     private val transform = mapperFor<Transform>()
@@ -73,6 +73,8 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         var desiredSpeed = 0f
         if (shipInput.forward)
             desiredSpeed = ship.maxSpeed
+        else if (shipInput.backward)
+            desiredSpeed = -ship.maxSpeed * 0.1f
 
         //find current speed in forward direction
         var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
@@ -80,7 +82,8 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         //apply necessary force
         var force = when {
-            desiredSpeed > currentSpeed -> ship.maxDriveForce
+            desiredSpeed > 0 && currentSpeed < desiredSpeed -> ship.driveForce
+            desiredSpeed < 0 && currentSpeed <= 0.1f && currentSpeed > desiredSpeed -> -ship.driveForce
             else -> 0f
         }
 
@@ -154,6 +157,8 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         if (forwardDistance > 2.0f) {
             shipInput.forward = true
+        } else if (forwardDistance < -2.0f) {
+            shipInput.backward = true
         }
 
         if (rightDistance > 2.0f) {
@@ -172,5 +177,8 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         if (Gdx.input.isKeyPressed(Input.Keys.UP))
             shipInput.forward = true
+
+        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
+            shipInput.backward = true
     }
 }

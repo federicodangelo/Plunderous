@@ -7,8 +7,6 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.World
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.systems.*
@@ -18,7 +16,6 @@ import com.fangelo.plunderous.client.game.world.WorldBuilder
 import ktx.ashley.entity
 import ktx.ashley.get
 import ktx.assets.load
-import ktx.box2d.createWorld
 
 private const val REF_HEIGHT_IN_TILES = 32
 
@@ -31,15 +28,12 @@ class Game {
     private val camera: Camera
     private val assetManager = AssetManager()
     private var debugEnabled = false
-    private val physicsWorld: World
 
     init {
 
         loadAssets()
 
         camera = addCamera()
-
-        physicsWorld = buildPhysicsWorld()
 
         initEngineSystems()
 
@@ -54,6 +48,7 @@ class Game {
         switchLights()
 
         camera.followTransform = player?.get()
+        camera.followTransformRotation = false
     }
 
     private fun buildWorld(): WorldBuilder {
@@ -64,7 +59,7 @@ class Game {
 
     private fun initEngineSystems() {
 
-        engine.addSystem(PhysicsSystem(physicsWorld))
+        engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
         engine.addSystem(UpdateCameraSystem())
         engine.addSystem(ProcessShipInputSystem())
@@ -74,10 +69,6 @@ class Game {
         engine.addSystem(VisualSpriteRenderSystem())
         engine.addSystem(VisualLightsRenderSystem())
         engine.addSystem(VisualDebugPhysicsSystem())
-    }
-
-    private fun buildPhysicsWorld(): World {
-        return createWorld(gravity = Vector2())
     }
 
     private fun disableDebug() {
@@ -99,14 +90,14 @@ class Game {
 
     private fun addCamera(): Camera {
 
-        val cameraEntity = engine.entity {
+        val entity = engine.entity {
             with<Transform> {
                 set(16.5f, 16.5f, 0f)
             }
             with<Camera>()
         }
 
-        return cameraEntity.get()!!
+        return entity.getComponent(Camera::class.java)
     }
 
     fun update(deltaTime: Float) {
@@ -131,7 +122,6 @@ class Game {
         engine.removeAllEntities()
         engine.systems.toArray().forEach { system -> engine.removeSystem(system) }
         assetManager.dispose()
-        physicsWorld.dispose()
     }
 
     fun switchLights() {

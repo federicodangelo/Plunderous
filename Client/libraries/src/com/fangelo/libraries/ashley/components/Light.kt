@@ -6,6 +6,15 @@ import com.badlogic.gdx.graphics.Color
 
 class Light(val rays: Int = 256) : Component {
 
+    var world: World? = null
+    var native: PointLight? = null
+
+    fun set(world: World, distance: Float, color: Color) {
+        this.world = world
+        this.distance = distance
+        this.color = color
+    }
+
     var color: Color = Color.BLACK
         set(value) {
             field = value
@@ -17,6 +26,4 @@ class Light(val rays: Int = 256) : Component {
             field = value
             native?.distance = value
         }
-
-    var native: PointLight? = null
 }

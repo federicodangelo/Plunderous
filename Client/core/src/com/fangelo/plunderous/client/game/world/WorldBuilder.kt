@@ -11,14 +11,12 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.fangelo.libraries.ashley.components.*
 import com.fangelo.libraries.ashley.data.Sprite
-import com.fangelo.libraries.ashley.systems.PhysicsSystem
 import com.fangelo.plunderous.client.game.components.island.Island
 import com.fangelo.plunderous.client.game.components.island.VisualIsland
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
-import ktx.box2d.body
 
 class WorldBuilder {
 
@@ -34,16 +32,18 @@ class WorldBuilder {
     var player: Entity? = null
         private set
 
+    var mainWorld: World? = null
+        private set
+
     fun build(engine: Engine, assetManager: AssetManager) {
 
         this.engine = engine
         this.assetManager = assetManager
 
-        addWorldBounds()
+        addMainWorld()
         addTilemap()
         addPlayer()
         addIslands()
-        addItems()
     }
 
     private fun addIslands() {
@@ -60,7 +60,7 @@ class WorldBuilder {
                 set(x, y, 0f)
             }
             with<Rigidbody> {
-                set(buildIslandBodyDefinition(radius))
+                set(mainWorld!!, buildIslandBodyDefinition(radius))
             }
             with<Island> {
                 set(radius)
@@ -86,39 +86,15 @@ class WorldBuilder {
         }
     }
 
-    private fun addWorldBounds() {
-        val world = engine.getSystem(PhysicsSystem::class.java).world
+    private fun addMainWorld() {
 
-        //Left
-        world.body {
-            box(
-                height = MapHeight.toFloat(),
-                position = Vector2(0f, MapHeight * 0.5f)
-            )
+        val entity = engine.entity {
+            with<World>()
         }
-        //Right
-        world.body {
-            box(
-                height = MapHeight.toFloat(),
-                position = Vector2(MapWidth.toFloat(), MapHeight * 0.5f)
-            )
-        }
-        //Top
-        world.body {
-            box(
-                width = MapWidth.toFloat(),
-                position = Vector2(MapWidth * 0.5f, 0f)
-            )
-        }
-        //Bottom
-        world.body {
-            box(
-                width = MapWidth.toFloat(),
-                position = Vector2(MapWidth * 0.5f, MapHeight.toFloat())
-            )
-        }
+
+        mainWorld = entity.getComponent(World::class.java)
+        mainWorld?.buildBounds(MapWidth.toFloat(), MapHeight.toFloat())
     }
-
 
     private fun addTilemap() {
         val tilesetAtlas = assetManager.get<TextureAtlas>("tiles/tiles.atlas")
@@ -145,22 +121,6 @@ class WorldBuilder {
         )
     }
 
-
-    private fun addItems() {
-        /*
-        val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
-
-        addSimpleItem(itemsAtlas, "rock1", 14.5f, 16f)
-
-        addSimpleItem(itemsAtlas, "rock2", 18.5f, 16f)
-
-        addTree(itemsAtlas, 20.5f, 16f)
-
-        getRandomPositions().forEach { pos -> addTree(itemsAtlas, pos.x, pos.y) }
-        getRandomPositions().forEach { pos -> addSimpleItem(itemsAtlas, "rock1", pos.x, pos.y) }
-        getRandomPositions().forEach { pos -> addSimpleItem(itemsAtlas, "rock2", pos.x, pos.y) }
-        */
-    }
 
     private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
         return Array(amount, { _ -> Vector2(MathUtils.random() * (MapWidth - 4) + 2f, MathUtils.random() * (MapHeight - 4) + 2f) })
@@ -235,16 +195,15 @@ class WorldBuilder {
                 set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
             }
             with<Rigidbody> {
-                set(buildShipBodyDefinition())
+                set(mainWorld!!, buildShipBodyDefinition())
             }
             with<VisualSprite> {
                 add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
             }
             with<Ship>()
             with<MainShip>()
-            with<Light>{
-                distance = 10.0f
-                color = Color.WHITE
+            with<Light> {
+                set(mainWorld!!, 10.0f, Color.WHITE)
             }
         }
     }

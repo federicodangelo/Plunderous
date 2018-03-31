@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
+import com.fangelo.libraries.utils.format
 import com.fangelo.plunderous.client.Globals
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import ktx.actors.onChange
@@ -76,7 +77,7 @@ class InGameScreen : Screen() {
     private fun updateRudderLabel() {
         val game = Globals.activeGame ?: return
         val rudderRotation = game.player?.getComponent(Ship::class.java)?.rudderRotation ?: 0f
-        rudderRotationLabel.setText("Rudder Rot: ${(rudderRotation)}")
+        rudderRotationLabel.setText("Rudder Rot: ${rudderRotation.format(2)}")
     }
 
 
