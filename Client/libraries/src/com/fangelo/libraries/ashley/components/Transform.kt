@@ -12,6 +12,19 @@ class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) 
         return this
     }
 
+    fun worldPositionToLocalPosition(worldPos: Vector2): Vector2 {
+        return worldPositionToLocalPosition(worldPos.x, worldPos.y)
+    }
+
+    fun worldPositionToLocalPosition(x: Float, y: Float): Vector2 {
+        var vector = Vector2(x, y)
+        vector.sub(this.x, this.y)
+        vector.rotateRad(-this.rotation)
+        vector.x = -vector.x
+        return vector
+    }
+
+
     val forward: Vector2
         get() = Vector2(-MathUtils.sin(rotation), MathUtils.cos(rotation))
 

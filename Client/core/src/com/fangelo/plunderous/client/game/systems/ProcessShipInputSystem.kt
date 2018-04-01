@@ -1,51 +1,29 @@
 package com.fangelo.plunderous.client.game.systems
 
-import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
-import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Rigidbody
-import com.fangelo.libraries.ashley.components.Transform
-import com.fangelo.libraries.ui.ScreenManager
-import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
+import com.fangelo.plunderous.client.game.components.ship.ShipInput
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import kotlin.math.absoluteValue
 
 
-class ShipInput(var left: Boolean = false, var right: Boolean = false, var forward: Boolean = false, var backward: Boolean = false)
-
-class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::class, MainShip::class, Transform::class).get()) {
-    private val transform = mapperFor<Transform>()
+class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::class, ShipInput::class).get()) {
     private val rigidbody = mapperFor<Rigidbody>()
     private val ship = mapperFor<Ship>()
-    private val camera = mapperFor<Camera>()
-    private lateinit var cameras: ImmutableArray<Entity>
-
-    override fun addedToEngine(engine: Engine) {
-        super.addedToEngine(engine)
-        cameras = engine.getEntitiesFor(allOf(Camera::class).get())
-    }
+    private val shipInput = mapperFor<ShipInput>()
 
     public override fun processEntity(entity: Entity, deltaTime: Float) {
         val rigidbody = rigidbody.get(entity)
         val ship = ship.get(entity)
-        val transform = transform.get(entity)
+        val shipInput = shipInput.get(entity)
 
         val body = rigidbody.native ?: return
-
-        val shipInput = ShipInput()
-
-        getTouchInput(shipInput, transform)
-
-        getKeyboardInput(shipInput)
 
         updateRudder(shipInput, ship, deltaTime)
 
@@ -128,57 +106,5 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         ship.rudderRotation = MathUtils.clamp(
             ship.rudderRotation + ship.rudderRotationSpeed * deltaTime, -ship.maxRudderRotation, ship.maxRudderRotation
         )
-    }
-
-    private fun getTouchInput(shipInput: ShipInput, transform: Transform) {
-        if (!Gdx.input.isTouched)
-            return
-
-        if (cameras.size() == 0)
-            return
-
-        val camera = camera.get(cameras.first())
-
-        val x = Gdx.input.x
-        val y = Gdx.input.y
-
-        if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
-            return
-
-        val shipForward = transform.forward
-        val shipRight = transform.right
-
-        var touchWorldPos = camera.screenPositionToWorldPosition(x.toFloat(), y.toFloat())
-
-        touchWorldPos.sub(transform.x, transform.y)
-
-        val forwardDistance = touchWorldPos.dot(shipForward)
-        val rightDistance = touchWorldPos.dot(shipRight)
-
-        if (forwardDistance > 2.0f) {
-            shipInput.forward = true
-        } else if (forwardDistance < -2.0f) {
-            shipInput.backward = true
-        }
-
-        if (rightDistance > 2.0f) {
-            shipInput.right = true
-        } else if (rightDistance < -2.0f) {
-            shipInput.left = true
-        }
-    }
-
-    private fun getKeyboardInput(shipInput: ShipInput) {
-        if (Gdx.input.isKeyPressed(Input.Keys.RIGHT))
-            shipInput.right = true
-
-        if (Gdx.input.isKeyPressed(Input.Keys.LEFT))
-            shipInput.left = true
-
-        if (Gdx.input.isKeyPressed(Input.Keys.UP))
-            shipInput.forward = true
-
-        if (Gdx.input.isKeyPressed(Input.Keys.DOWN))
-            shipInput.backward = true
     }
 }

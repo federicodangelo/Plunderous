@@ -10,7 +10,9 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.systems.*
+import com.fangelo.plunderous.client.game.systems.ProcessCameraInputSystem
 import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.systems.UpdateMainShipInputSystem
 import com.fangelo.plunderous.client.game.systems.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.world.WorldBuilder
 import ktx.ashley.entity
@@ -62,6 +64,8 @@ class Game {
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
         engine.addSystem(UpdateCameraSystem())
+        engine.addSystem(UpdateMainShipInputSystem())
+        engine.addSystem(ProcessCameraInputSystem())
         engine.addSystem(ProcessShipInputSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(VisualTilemapRenderSystem())
@@ -69,6 +73,7 @@ class Game {
         engine.addSystem(VisualSpriteRenderSystem())
         engine.addSystem(VisualLightsRenderSystem())
         engine.addSystem(VisualDebugPhysicsSystem())
+        engine.addSystem(InputSystem())
     }
 
     private fun disableDebug() {

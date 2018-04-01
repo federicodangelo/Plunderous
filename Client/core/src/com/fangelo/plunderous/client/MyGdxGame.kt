@@ -1,10 +1,14 @@
 package com.fangelo.plunderous.client
 
-import com.badlogic.gdx.*
+import com.badlogic.gdx.Gdx
+import com.badlogic.gdx.InputMultiplexer
+import com.badlogic.gdx.InputProcessor
 import com.badlogic.gdx.graphics.GL20
-import com.fangelo.libraries.ui.DialogResult
+import com.badlogic.gdx.input.GestureDetector
+import com.fangelo.libraries.input.InputHandler
+import com.fangelo.libraries.input.UIInputHandler
 import com.fangelo.libraries.ui.ScreenManager
-import com.fangelo.plunderous.client.ui.dialog.ConfirmDialog
+import com.fangelo.plunderous.client.ui.ExitInputHandler
 import com.fangelo.plunderous.client.ui.screen.MainMenuScreen
 import ktx.app.KtxApplicationAdapter
 
@@ -30,25 +34,11 @@ class MyGdxGame : KtxApplicationAdapter {
         val inputMultiplexer = InputMultiplexer()
 
         inputMultiplexer.addProcessor(ScreenManager.stage)
-        //inputMultiplexer.addProcessor(GestureDetector(worldInputHandler)) //gestures first
-        //inputMultiplexer.addProcessor(worldInputHandler) //base later
-        inputMultiplexer.addProcessor(object : InputAdapter() {
-            override fun keyDown(keycode: Int): Boolean {
-                if (keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE) {
-                    if (ScreenManager.canPop()) {
-                        ScreenManager.pop()
-                    } else {
-                        ScreenManager.show(ConfirmDialog("Exit", "Exit game?")).onClosed += { res ->
-                            if (res == DialogResult.Yes) {
-                                Gdx.app.exit()
-                            }
-                        }
-                    }
-                    return true
-                }
-                return false
-            }
-        })
+        inputMultiplexer.addProcessor(GestureDetector(InputHandler))
+        inputMultiplexer.addProcessor(InputHandler)
+        inputMultiplexer.addProcessor(UIInputHandler())
+        inputMultiplexer.addProcessor(ExitInputHandler())
+
         return inputMultiplexer
     }
 

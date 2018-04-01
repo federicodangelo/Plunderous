@@ -9,7 +9,7 @@ class Ship : Component {
 
     //Controlls steering
     var rudderRotation = 0f
-    var rudderRotationSpeed = 1f
+    var rudderRotationSpeed = 5f
     var maxRudderRotation = 1f
     var maxRudderTorque = 0.5f
 

@@ -15,6 +15,7 @@ import com.fangelo.plunderous.client.game.components.island.Island
 import com.fangelo.plunderous.client.game.components.island.VisualIsland
 import com.fangelo.plunderous.client.game.components.ship.MainShip
 import com.fangelo.plunderous.client.game.components.ship.Ship
+import com.fangelo.plunderous.client.game.components.ship.ShipInput
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
 
@@ -202,6 +203,7 @@ class WorldBuilder {
             }
             with<Ship>()
             with<MainShip>()
+            with<ShipInput>()
             with<Light> {
                 set(mainWorld!!, 10.0f, Color.WHITE)
             }
