@@ -48,7 +48,7 @@ class MyGdxGame : KtxApplicationAdapter {
 
         ScreenManager.resize(width, height, screenScale)
 
-        Globals.activeGame?.resize(width, height)
+        Context.activeGame?.resize(width, height)
     }
 
     override fun render() {
@@ -64,7 +64,7 @@ class MyGdxGame : KtxApplicationAdapter {
     }
 
     private fun drawGame() {
-        Globals.activeGame?.update(Gdx.graphics.deltaTime)
+        Context.activeGame?.update(Gdx.graphics.deltaTime)
     }
 
     private fun clearScreen() {

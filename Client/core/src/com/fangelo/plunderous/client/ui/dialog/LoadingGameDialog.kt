@@ -1,6 +1,6 @@
 package com.fangelo.plunderous.client.ui.dialog
 
-import com.fangelo.plunderous.client.Globals
+import com.fangelo.plunderous.client.Context
 import com.fangelo.plunderous.client.game.Game
 import com.fangelo.plunderous.client.ui.screen.InGameScreen
 import com.fangelo.libraries.ui.Dialog
@@ -37,7 +37,7 @@ class LoadingGameDialog : Dialog("Loading") {
 
     private fun finishLoadingGame() {
 
-        Globals.activeGame = Game()
+        Context.activeGame = Game()
 
         ScreenManager.show(InGameScreen())
 

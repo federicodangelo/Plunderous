@@ -7,7 +7,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.libraries.utils.format
-import com.fangelo.plunderous.client.Globals
+import com.fangelo.plunderous.client.Context
+import com.fangelo.plunderous.client.game.ship.component.Ship
 import ktx.actors.onChange
 
 class InGameScreen : Screen() {
@@ -74,7 +75,7 @@ class InGameScreen : Screen() {
     }
 
     private fun updateRudderLabel() {
-        val game = Globals.activeGame ?: return
+        val game = Context.activeGame ?: return
         val rudderRotation = game.player?.getComponent(Ship::class.java)?.rudderRotation ?: 0f
         rudderRotationLabel.setText("Rudder Rot: ${rudderRotation.format(2)}")
     }
@@ -93,13 +94,13 @@ class InGameScreen : Screen() {
     private fun addDebugButtons() {
         val lightsButton = TextButton("Lights", skin)
         lightsButton.onChange {
-            Globals.activeGame?.switchLights()
+            Context.activeGame?.switchLights()
         }
         bottomRightContainer.add(lightsButton).minWidth(75f).padBottom(5f).padRight(5f)
 
         val drawDebugButton = TextButton("Draw Debug", skin)
         drawDebugButton.onChange {
-            Globals.activeGame?.switchDrawDebug()
+            Context.activeGame?.switchDrawDebug()
         }
         bottomRightContainer.add(drawDebugButton).padBottom(5f).padRight(5f)
     }
@@ -114,8 +115,8 @@ class InGameScreen : Screen() {
 
 
     private fun returnToMainScreen() {
-        Globals.activeGame?.dispose()
-        Globals.activeGame = null
+        Context.activeGame?.dispose()
+        Context.activeGame = null
 
         ScreenManager.show(MainMenuScreen())
     }
