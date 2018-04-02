@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.systems.utils
+package com.fangelo.libraries.ashley.systems.renderers.utils
 
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Tilemap
