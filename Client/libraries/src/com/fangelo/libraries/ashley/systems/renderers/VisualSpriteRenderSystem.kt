@@ -1,8 +1,7 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.ashley.systems.renderers
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
@@ -14,9 +13,8 @@ import com.fangelo.libraries.utils.MutableListUtils
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
-class VisualSpriteRenderSystem : EntitySystem() {
+class VisualSpriteRenderSystem : VisualCameraRenderer() {
     private lateinit var entities: ImmutableArray<Entity>
-    private lateinit var cameras: ImmutableArray<Entity>
     private var sortedEntities = mutableListOf<Entity>()
 
     private val transform = mapperFor<Transform>()
@@ -28,22 +26,17 @@ class VisualSpriteRenderSystem : EntitySystem() {
     override fun addedToEngine(engine: Engine) {
         batch = SpriteBatch()
         entities = engine.getEntitiesFor(allOf(Transform::class, VisualSprite::class).get())
-        cameras = engine.getEntitiesFor(allOf(Camera::class).get())
     }
 
     override fun removedFromEngine(engine: Engine) {
         batch.dispose()
     }
 
-    override fun update(deltaTime: Float) {
+    override fun render(camera: Camera) {
         sortEntities()
-        var camera: Camera
-        for (ec in cameras) {
-            camera = this.camera.get(ec)
-            beginRender(camera)
-            drawEntities()
-            endRender()
-        }
+        beginRender(camera)
+        drawEntities()
+        endRender()
     }
 
     private fun sortEntities() {

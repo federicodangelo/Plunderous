@@ -1,11 +1,10 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.ashley.systems.renderers
 
 import box2dLight.PointLight
 import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
-import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
@@ -16,9 +15,8 @@ import com.fangelo.libraries.ashley.components.World
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
-class VisualLightsRenderSystem : EntitySystem() {
+class VisualLightsRenderSystem : VisualCameraRenderer() {
 
-    private lateinit var cameras: ImmutableArray<Entity>
     private lateinit var lights: ImmutableArray<Entity>
 
     private val rayHandlers = HashMap<World, RayHandler>()
@@ -45,7 +43,6 @@ class VisualLightsRenderSystem : EntitySystem() {
         }
 
     override fun addedToEngine(engine: Engine) {
-        cameras = engine.getEntitiesFor(allOf(Camera::class).get())
         lights = engine.getEntitiesFor(allOf(Transform::class, Light::class).get())
 
         engine.addEntityListener(allOf(Transform::class, Light::class).get(), lightsListener)
@@ -57,16 +54,12 @@ class VisualLightsRenderSystem : EntitySystem() {
         engine.removeEntityListener(worldsListener)
     }
 
-    override fun update(deltaTime: Float) {
+    override fun render(camera: Camera) {
         updateLightsPositions()
 
         for (rayHandler in rayHandlers.values) {
-            var camera: Camera
-            for (ec in cameras) {
-                camera = this.camera.get(ec)
-                rayHandler.setCombinedMatrix(camera.native)
-                rayHandler.updateAndRender()
-            }
+            rayHandler.setCombinedMatrix(camera.native)
+            rayHandler.updateAndRender()
         }
     }
 

@@ -10,6 +10,10 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.fangelo.libraries.ashley.components.Camera
 import com.fangelo.libraries.ashley.components.Transform
 import com.fangelo.libraries.ashley.systems.*
+import com.fangelo.libraries.ashley.systems.renderers.VisualDebugPhysicsSystem
+import com.fangelo.libraries.ashley.systems.renderers.VisualLightsRenderSystem
+import com.fangelo.libraries.ashley.systems.renderers.VisualSpriteRenderSystem
+import com.fangelo.libraries.ashley.systems.renderers.VisualTilemapRenderSystem
 import com.fangelo.plunderous.client.game.systems.ProcessCameraInputSystem
 import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
 import com.fangelo.plunderous.client.game.systems.UpdateMainShipInputSystem
@@ -59,7 +63,12 @@ class Game {
         return worldBuilder
     }
 
+    private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
+    private lateinit var lightsRendererSystem: VisualLightsRenderSystem
+
     private fun initEngineSystems() {
+
+        var cameraRenderSystem = VisualCameraRenderSystem()
 
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
@@ -68,22 +77,25 @@ class Game {
         engine.addSystem(ProcessCameraInputSystem())
         engine.addSystem(ProcessShipInputSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
-        engine.addSystem(VisualTilemapRenderSystem())
-        engine.addSystem(VisualIslandRenderSystem())
-        engine.addSystem(VisualSpriteRenderSystem())
-        engine.addSystem(VisualLightsRenderSystem())
-        engine.addSystem(VisualDebugPhysicsSystem())
         engine.addSystem(InputSystem())
+        engine.addSystem(cameraRenderSystem)
+
+        cameraRenderSystem.addRenderer(VisualTilemapRenderSystem())
+        cameraRenderSystem.addRenderer(VisualIslandRenderSystem())
+        cameraRenderSystem.addRenderer(VisualSpriteRenderSystem())
+        lightsRendererSystem = cameraRenderSystem.addRenderer(VisualLightsRenderSystem())
+        debugPhysicsSystem = cameraRenderSystem.addRenderer(VisualDebugPhysicsSystem())
+
     }
 
     private fun disableDebug() {
         debugEnabled = false
-        engine.getSystem(VisualDebugPhysicsSystem::class.java).setProcessing(false)
+        debugPhysicsSystem.enabled = false
     }
 
     private fun enableDebug() {
         debugEnabled = true
-        engine.getSystem(VisualDebugPhysicsSystem::class.java).setProcessing(true)
+        debugPhysicsSystem.enabled = true
     }
 
     private fun loadAssets() {
@@ -130,8 +142,7 @@ class Game {
     }
 
     fun switchLights() {
-        val lightsRenderSystem = engine.getSystem(VisualLightsRenderSystem::class.java)
-        lightsRenderSystem.setProcessing(!lightsRenderSystem.checkProcessing())
+        lightsRendererSystem.enabled = !lightsRendererSystem.enabled
     }
 
     fun switchDrawDebug() {

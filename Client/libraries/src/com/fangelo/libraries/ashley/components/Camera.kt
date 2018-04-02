@@ -17,10 +17,17 @@ class Camera : Component {
 
     private var camera = OrthographicCamera()
 
-    private var rotation = MathUtils.PI
-
     val native: OrthographicCamera
         get() = this.camera
+
+    val x: Float
+        get() = camera.position.x
+
+    val y: Float
+        get() = camera.position.y
+
+    var rotation: Float = MathUtils.PI
+        private set
 
     var zoom: Float
         get() = camera.zoom
@@ -28,6 +35,28 @@ class Camera : Component {
             camera.zoom = value
             cameraChanged = true
         }
+
+    val viewportWidth: Float
+        get() = camera.viewportWidth
+
+    val viewportHeight: Float
+        get() = camera.viewportHeight
+
+    val up: Vector2
+        get() = Vector2(camera.up.x, camera.up.y)
+
+    val right: Vector2
+        get() = up.rotate90(-1)
+
+    val combined: Matrix4
+        get() {
+            if (cameraChanged) {
+                cameraChanged = false
+                camera.update()
+            }
+            return camera.combined
+        }
+
 
     init {
         camera = OrthographicCamera()
@@ -60,27 +89,6 @@ class Camera : Component {
         camera.viewportHeight = height.toFloat()
         camera.update()
     }
-
-    val combined: Matrix4
-        get() {
-            if (cameraChanged) {
-                cameraChanged = false
-                camera.update()
-            }
-            return camera.combined
-        }
-
-    val viewportWidth: Float
-        get() = camera.viewportWidth
-
-    val viewportHeight: Float
-        get() = camera.viewportHeight
-
-    val up: Vector2
-        get() = Vector2(camera.up.x, camera.up.y)
-
-    val right: Vector2
-        get() = up.rotate90(-1)
 
     fun screenPositionToWorldPosition(x: Float, y: Float): Vector2 {
         val vec = Vector3(x, y, 0f)

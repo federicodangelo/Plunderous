@@ -6,18 +6,21 @@ import com.fangelo.libraries.ashley.components.Transform
 
 class VisualTilemapRenderBoundsCalculator {
 
-    private val EXTRA_TILES_TO_DRAW = 2
+    private val extraTilesToDraw = 2
 
     fun calculate(
-        camera: Camera, cameraTransform: Transform, tilemap: Tilemap, tilemapTransform: Transform, toReturn: VisualTilemapRenderBounds? = null
+        camera: Camera,
+        tilemap: Tilemap,
+        tilemapTransform: Transform,
+        toReturn: VisualTilemapRenderBounds? = null
     ): VisualTilemapRenderBounds {
 
         var cameraBoundingBox = camera.worldBoundingBox()
 
-        val viewPortWidth = cameraBoundingBox.width + EXTRA_TILES_TO_DRAW * 2
-        val viewPortHeight = cameraBoundingBox.height + EXTRA_TILES_TO_DRAW * 2
-        val cameraPositionX = cameraTransform.x - EXTRA_TILES_TO_DRAW
-        val cameraPositionY = cameraTransform.y + EXTRA_TILES_TO_DRAW
+        val viewPortWidth = cameraBoundingBox.width + extraTilesToDraw * 2
+        val viewPortHeight = cameraBoundingBox.height + extraTilesToDraw * 2
+        val cameraPositionX = camera.x - extraTilesToDraw
+        val cameraPositionY = camera.y + extraTilesToDraw
 
         val offsetX = tilemapTransform.x.toInt()
         val offsetY = tilemapTransform.y.toInt()

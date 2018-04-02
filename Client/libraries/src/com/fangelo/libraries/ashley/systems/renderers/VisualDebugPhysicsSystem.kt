@@ -1,8 +1,7 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.ashley.systems.renderers
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
-import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer
 import com.fangelo.libraries.ashley.components.Camera
@@ -11,30 +10,23 @@ import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
 
-class VisualDebugPhysicsSystem : IteratingSystem(allOf(World::class).get()) {
+class VisualDebugPhysicsSystem : VisualCameraRenderer() {
     private lateinit var debugRenderer: Box2DDebugRenderer
-    private lateinit var cameras: ImmutableArray<Entity>
-    private val camera = mapperFor<Camera>()
+    private lateinit var worlds: ImmutableArray<Entity>
     private val world = mapperFor<World>()
 
     override fun addedToEngine(engine: Engine) {
-        super.addedToEngine(engine)
         debugRenderer = Box2DDebugRenderer()
-        cameras = engine.getEntitiesFor(allOf(Camera::class).get())
+        worlds = engine.getEntitiesFor(allOf(World::class).get())
     }
 
     override fun removedFromEngine(engine: Engine) {
-        super.removedFromEngine(engine)
         debugRenderer.dispose()
     }
 
-    override fun processEntity(entity: Entity, deltaTime: Float) {
-
-        val world = this.world.get(entity)
-
-        var camera: Camera
-        for (ec in cameras) {
-            camera = this.camera.get(ec)
+    override fun render(camera: Camera) {
+        for (entity in worlds) {
+            val world = world.get(entity)
             drawDebug(world, camera)
         }
     }
