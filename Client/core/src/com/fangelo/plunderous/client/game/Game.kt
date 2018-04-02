@@ -7,23 +7,24 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.camera.component.Camera
+import com.fangelo.libraries.camera.system.UpdateCameraSystem
+import com.fangelo.libraries.input.system.InputSystem
+import com.fangelo.libraries.light.system.VisualLightsRenderSystem
+import com.fangelo.libraries.physics.system.PhysicsSystem
+import com.fangelo.libraries.physics.system.UpdatePhysicsSystem
+import com.fangelo.libraries.physics.system.VisualDebugPhysicsSystem
+import com.fangelo.libraries.render.system.VisualCameraRenderSystem
+import com.fangelo.libraries.sprite.system.UpdateVisualAnimationSystem
+import com.fangelo.libraries.sprite.system.VisualSpriteRenderSystem
+import com.fangelo.libraries.tilemap.system.VisualTilemapRenderSystem
 import com.fangelo.libraries.transform.Transform
-import com.fangelo.libraries.physics.VisualDebugPhysicsSystem
-import com.fangelo.libraries.light.VisualLightsRenderSystem
-import com.fangelo.libraries.camera.UpdateCameraSystem
-import com.fangelo.libraries.input.InputSystem
-import com.fangelo.libraries.physics.PhysicsSystem
-import com.fangelo.libraries.physics.UpdatePhysicsSystem
-import com.fangelo.libraries.sprite.VisualSpriteRenderSystem
-import com.fangelo.libraries.tilemap.VisualTilemapRenderSystem
-import com.fangelo.libraries.render.VisualCameraRenderSystem
-import com.fangelo.libraries.sprite.UpdateVisualAnimationSystem
-import com.fangelo.plunderous.client.game.systems.ProcessCameraInputSystem
-import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
-import com.fangelo.plunderous.client.game.systems.UpdateMainShipInputSystem
-import com.fangelo.plunderous.client.game.systems.VisualIslandRenderSystem
-import com.fangelo.plunderous.client.game.world.WorldBuilder
+import com.fangelo.plunderous.client.game.camera.system.ProcessCameraInputSystem
+import com.fangelo.plunderous.client.game.constants.GameCameraIds
+import com.fangelo.plunderous.client.game.constants.GameRenderFlags
+import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
+import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.ship.system.UpdateMainShipInputSystem
 import ktx.ashley.entity
 import ktx.ashley.get
 import ktx.assets.load
@@ -53,22 +54,24 @@ class Game {
 
         resize(Gdx.graphics.width, Gdx.graphics.height)
 
-        val worldBuilder = buildWorld()
-
-        this.player = worldBuilder.player
+        buildGame()
 
         //disableDebug()
         enableDebug()
         switchLights()
 
+        initCamera()
+    }
+
+    private fun initCamera() {
         mainCamera.followTransform = player?.get()
         mainCamera.followTransformRotation = false
     }
 
-    private fun buildWorld(): WorldBuilder {
-        val worldBuilder = WorldBuilder()
-        worldBuilder.build(engine, assetManager)
-        return worldBuilder
+    private fun buildGame() {
+        val gameBuilder = GameBuilder()
+        gameBuilder.build(engine, assetManager)
+        this.player = gameBuilder.player
     }
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
@@ -120,7 +123,8 @@ class Game {
                 set(16.5f, 16.5f, 0f)
             }
             with<Camera> {
-                id = "Main"
+                id = GameCameraIds.main
+                renderMask = GameRenderFlags.main
             }
         }
 
@@ -131,11 +135,11 @@ class Game {
 
         val entity = engine.entity {
             with<Transform> {
-                set(0f, 0f, 0f)
+                set(2f, 3.5f, 0f)
             }
             with<Camera> {
-                id = "Ship"
-                renderMask = 2
+                id = GameCameraIds.ship
+                renderMask = GameRenderFlags.ship
             }
         }
 
