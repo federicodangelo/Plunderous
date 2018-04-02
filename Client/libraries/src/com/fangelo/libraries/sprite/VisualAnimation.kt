@@ -1,10 +1,10 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.sprite
 
-import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.fangelo.libraries.render.VisualComponent
 
-class VisualAnimation(var animations: Map<String, Animation<TextureRegion>> = mapOf(), startingAnimation: String = "") : Component {
+class VisualAnimation(var animations: Map<String, Animation<TextureRegion>> = mapOf(), startingAnimation: String = "") : VisualComponent() {
 
     var activeAnimation: Animation<TextureRegion>
         private set

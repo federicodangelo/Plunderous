@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.data
+package com.fangelo.libraries.sprite
 
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 

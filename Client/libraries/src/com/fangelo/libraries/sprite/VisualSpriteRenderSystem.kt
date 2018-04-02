@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.systems.renderers
+package com.fangelo.libraries.sprite
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -6,9 +6,9 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.MathUtils
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Transform
-import com.fangelo.libraries.ashley.components.VisualSprite
+import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.transform.Transform
+import com.fangelo.libraries.render.VisualCameraRenderer
 import com.fangelo.libraries.utils.MutableListUtils
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
@@ -35,7 +35,7 @@ class VisualSpriteRenderSystem : VisualCameraRenderer() {
     override fun render(camera: Camera) {
         sortEntities()
         beginRender(camera)
-        drawEntities()
+        drawEntities(camera)
         endRender()
     }
 
@@ -64,7 +64,7 @@ class VisualSpriteRenderSystem : VisualCameraRenderer() {
         }
     }
 
-    private fun drawEntities() {
+    private fun drawEntities(camera: Camera) {
         var transform: Transform
         var visualSprite: VisualSprite
 
@@ -73,6 +73,9 @@ class VisualSpriteRenderSystem : VisualCameraRenderer() {
 
             transform = this.transform.get(e)
             visualSprite = this.visual.get(e)
+
+            if (!camera.shouldRenderVisualComponent(visualSprite))
+                continue
 
             for (spriteIndex in 0 until visualSprite.sprites.size) {
                 val item = visualSprite.sprites[spriteIndex]

@@ -1,7 +1,8 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.physics
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.physics.box2d.Body
+import com.fangelo.libraries.physics.World
 import ktx.box2d.BodyDefinition
 
 class Rigidbody : Component {

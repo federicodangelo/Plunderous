@@ -1,13 +1,14 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.light
 
 import box2dLight.PointLight
-import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.Color
+import com.fangelo.libraries.physics.World
+import com.fangelo.libraries.render.VisualComponent
 
-class Light(val rays: Int = 256) : Component {
+class Light(val rays: Int = 256) : VisualComponent() {
 
     var world: World? = null
-    var native: PointLight? = null
+    internal var native: PointLight? = null
 
     fun set(world: World, distance: Float, color: Color) {
         this.world = world

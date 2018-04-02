@@ -7,13 +7,18 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Transform
-import com.fangelo.libraries.ashley.systems.*
-import com.fangelo.libraries.ashley.systems.renderers.VisualDebugPhysicsSystem
-import com.fangelo.libraries.ashley.systems.renderers.VisualLightsRenderSystem
-import com.fangelo.libraries.ashley.systems.renderers.VisualSpriteRenderSystem
-import com.fangelo.libraries.ashley.systems.renderers.VisualTilemapRenderSystem
+import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.transform.Transform
+import com.fangelo.libraries.physics.VisualDebugPhysicsSystem
+import com.fangelo.libraries.light.VisualLightsRenderSystem
+import com.fangelo.libraries.camera.UpdateCameraSystem
+import com.fangelo.libraries.input.InputSystem
+import com.fangelo.libraries.physics.PhysicsSystem
+import com.fangelo.libraries.physics.UpdatePhysicsSystem
+import com.fangelo.libraries.sprite.VisualSpriteRenderSystem
+import com.fangelo.libraries.tilemap.VisualTilemapRenderSystem
+import com.fangelo.libraries.render.VisualCameraRenderSystem
+import com.fangelo.libraries.sprite.UpdateVisualAnimationSystem
 import com.fangelo.plunderous.client.game.systems.ProcessCameraInputSystem
 import com.fangelo.plunderous.client.game.systems.ProcessShipInputSystem
 import com.fangelo.plunderous.client.game.systems.UpdateMainShipInputSystem
@@ -31,7 +36,8 @@ class Game {
         private set
 
     private val engine = PooledEngine()
-    private val camera: Camera
+    private val mainCamera: Camera
+    private val shipCamera: Camera
     private val assetManager = AssetManager()
     private var debugEnabled = false
 
@@ -39,7 +45,9 @@ class Game {
 
         loadAssets()
 
-        camera = addCamera()
+        mainCamera = addMainCamera()
+
+        shipCamera = addShipCamera()
 
         initEngineSystems()
 
@@ -53,8 +61,8 @@ class Game {
         enableDebug()
         switchLights()
 
-        camera.followTransform = player?.get()
-        camera.followTransformRotation = false
+        mainCamera.followTransform = player?.get()
+        mainCamera.followTransformRotation = false
     }
 
     private fun buildWorld(): WorldBuilder {
@@ -105,13 +113,30 @@ class Game {
         assetManager.finishLoading()
     }
 
-    private fun addCamera(): Camera {
+    private fun addMainCamera(): Camera {
 
         val entity = engine.entity {
             with<Transform> {
                 set(16.5f, 16.5f, 0f)
             }
-            with<Camera>()
+            with<Camera> {
+                id = "Main"
+            }
+        }
+
+        return entity.getComponent(Camera::class.java)
+    }
+
+    private fun addShipCamera(): Camera {
+
+        val entity = engine.entity {
+            with<Transform> {
+                set(0f, 0f, 0f)
+            }
+            with<Camera> {
+                id = "Ship"
+                renderMask = 2
+            }
         }
 
         return entity.getComponent(Camera::class.java)
@@ -132,7 +157,8 @@ class Game {
     fun resize(width: Int, height: Int) {
         var scale = height.toDouble() / REF_HEIGHT_IN_TILES.toDouble()
         scale = 1.0 / scale
-        camera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
+        mainCamera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
+        shipCamera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
     }
 
     fun dispose() {

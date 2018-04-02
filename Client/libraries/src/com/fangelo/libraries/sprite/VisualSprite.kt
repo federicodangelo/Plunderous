@@ -1,9 +1,8 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.sprite
 
-import com.badlogic.ashley.core.Component
-import com.fangelo.libraries.ashley.data.Sprite
+import com.fangelo.libraries.render.VisualComponent
 
-class VisualSprite(sprite: Sprite? = null) : Component {
+class VisualSprite(sprite: Sprite? = null) : VisualComponent() {
 
     val sprites = mutableListOf<Sprite>()
 

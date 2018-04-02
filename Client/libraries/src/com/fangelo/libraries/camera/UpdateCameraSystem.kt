@@ -1,10 +1,9 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.camera
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Transform
+import com.fangelo.libraries.transform.Transform
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 

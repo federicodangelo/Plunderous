@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.systems.renderers.utils
+package com.fangelo.libraries.tilemap.utils
 
 data class VisualTilemapRenderBounds(
     var fromX: Int = 0,

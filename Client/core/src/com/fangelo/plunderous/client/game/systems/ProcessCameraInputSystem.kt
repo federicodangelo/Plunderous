@@ -6,7 +6,7 @@ import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.MathUtils
-import com.fangelo.libraries.ashley.components.Camera
+import com.fangelo.libraries.camera.Camera
 import com.fangelo.libraries.input.InputInfo
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor

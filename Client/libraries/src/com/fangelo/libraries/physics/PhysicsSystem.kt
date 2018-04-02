@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.physics
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -6,9 +6,7 @@ import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.core.EntitySystem
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
-import com.fangelo.libraries.ashley.components.Rigidbody
-import com.fangelo.libraries.ashley.components.Transform
-import com.fangelo.libraries.ashley.components.World
+import com.fangelo.libraries.transform.Transform
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import ktx.box2d.createWorld

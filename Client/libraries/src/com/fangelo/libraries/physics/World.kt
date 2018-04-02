@@ -1,17 +1,18 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.physics
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
+import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
 import ktx.box2d.BodyDefinition
 import ktx.box2d.body
 
 class World : Component {
 
-    var native: com.badlogic.gdx.physics.box2d.World? = null
+    internal var native: com.badlogic.gdx.physics.box2d.World? = null
 
     private val maxStepTime = 1 / 45f
 

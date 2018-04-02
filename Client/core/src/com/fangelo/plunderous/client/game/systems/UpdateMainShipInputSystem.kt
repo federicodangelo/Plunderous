@@ -6,8 +6,8 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Transform
+import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.input.InputInfo
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.game.components.ship.MainShip
@@ -32,6 +32,10 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
         val shipInput = shipInput.get(entity)
 
         shipInput.reset()
+
+        if (!isMainCameraEnabled())
+            return
+
         updateTouchInput(shipInput, transform)
         updateKeyboardInput(shipInput)
     }
@@ -40,10 +44,7 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
         if (!InputInfo.touching || InputInfo.touchingTime < 0.25f || InputInfo.zooming)
             return
 
-        if (cameras.size() == 0)
-            return
-
-        val camera = camera.get(cameras.first())
+        val camera = getMainCamera() ?: return
 
         val x = InputInfo.touchingX
         val y = InputInfo.touchingY
@@ -69,6 +70,14 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
         } else if (rightDistance < -2.0f) {
             shipInput.left = true
         }
+    }
+
+    private fun isMainCameraEnabled(): Boolean {
+        return getMainCamera()?.enabled ?: false
+    }
+
+    private fun getMainCamera(): Camera? {
+        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == "Main" }
     }
 
     private fun updateKeyboardInput(shipInput: ShipInput) {

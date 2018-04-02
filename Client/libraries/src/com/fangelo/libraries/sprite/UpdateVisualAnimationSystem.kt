@@ -1,9 +1,7 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.sprite
 
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.systems.IteratingSystem
-import com.fangelo.libraries.ashley.components.VisualAnimation
-import com.fangelo.libraries.ashley.components.VisualSprite
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 

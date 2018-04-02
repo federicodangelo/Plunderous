@@ -1,8 +1,8 @@
-package com.fangelo.libraries.ashley.systems.renderers.utils
+package com.fangelo.libraries.tilemap.utils
 
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Tilemap
-import com.fangelo.libraries.ashley.components.Transform
+import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.transform.Transform
+import com.fangelo.libraries.tilemap.Tilemap
 
 class VisualTilemapRenderBoundsCalculator {
 

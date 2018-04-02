@@ -1,12 +1,12 @@
-package com.fangelo.libraries.ashley.systems.renderers
+package com.fangelo.libraries.render
 
 import com.badlogic.ashley.core.Engine
-import com.fangelo.libraries.ashley.components.Camera
+import com.fangelo.libraries.camera.Camera
 
 
 abstract class VisualCameraRenderer {
 
-    var enabled: Boolean = true
+    var enabled = true
 
     open fun addedToEngine(engine: Engine) {
     }

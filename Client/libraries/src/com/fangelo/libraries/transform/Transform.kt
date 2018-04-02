@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.transform
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.MathUtils

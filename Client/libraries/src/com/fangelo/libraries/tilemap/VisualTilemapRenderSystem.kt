@@ -1,15 +1,14 @@
-package com.fangelo.libraries.ashley.systems.renderers
+package com.fangelo.libraries.tilemap
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
-import com.fangelo.libraries.ashley.components.Camera
-import com.fangelo.libraries.ashley.components.Tilemap
-import com.fangelo.libraries.ashley.components.Transform
-import com.fangelo.libraries.ashley.components.VisualTileset
-import com.fangelo.libraries.ashley.systems.utils.VisualTilemapRenderBounds
-import com.fangelo.libraries.ashley.systems.utils.VisualTilemapRenderBoundsCalculator
+import com.fangelo.libraries.camera.Camera
+import com.fangelo.libraries.transform.Transform
+import com.fangelo.libraries.render.VisualCameraRenderer
+import com.fangelo.libraries.tilemap.utils.VisualTilemapRenderBounds
+import com.fangelo.libraries.tilemap.utils.VisualTilemapRenderBoundsCalculator
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
@@ -18,7 +17,6 @@ class VisualTilemapRenderSystem : VisualCameraRenderer() {
     private lateinit var entities: ImmutableArray<Entity>
 
     private val transform = mapperFor<Transform>()
-    private val visualTileset = mapperFor<VisualTileset>()
     private val tilemap = mapperFor<Tilemap>()
 
     private lateinit var batch: SpriteBatch
@@ -26,7 +24,7 @@ class VisualTilemapRenderSystem : VisualCameraRenderer() {
 
     override fun addedToEngine(engine: Engine) {
         batch = SpriteBatch()
-        entities = engine.getEntitiesFor(allOf(Transform::class, VisualTileset::class, Tilemap::class).get())
+        entities = engine.getEntitiesFor(allOf(Transform::class, Tilemap::class).get())
     }
 
     override fun removedFromEngine(engine: Engine) {
@@ -46,22 +44,24 @@ class VisualTilemapRenderSystem : VisualCameraRenderer() {
     private fun drawTilemaps(camera: Camera) {
         var tilemap: Tilemap
         var tilemapTransform: Transform
-        var visualTileset: VisualTileset
 
         for (e in entities) {
 
             tilemap = this.tilemap.get(e)
             tilemapTransform = this.transform.get(e)
-            visualTileset = this.visualTileset.get(e)
+
+            if (!camera.shouldRenderVisualComponent(tilemap))
+                continue
 
             val bounds = renderBoundsCalculator.calculate(camera, tilemap, tilemapTransform, tmpBounds)
 
-            drawFloor(bounds, tilemap, visualTileset)
+            drawFloor(bounds, tilemap)
         }
     }
 
-    private fun drawFloor(bounds: VisualTilemapRenderBounds, tilemap: Tilemap, visualTileset: VisualTileset) {
+    private fun drawFloor(bounds: VisualTilemapRenderBounds, tilemap: Tilemap) {
         val renderOffsetX = bounds.renderOffsetX.toFloat()
+        val tileset = tilemap.tileset ?: return
 
         var drawY = bounds.renderOffsetY.toFloat()
 
@@ -70,7 +70,7 @@ class VisualTilemapRenderSystem : VisualCameraRenderer() {
             var drawX = renderOffsetX
             for (mapY in bounds.fromX until bounds.toX) {
                 val tile = tilemap.getTile(mapX, mapY)
-                val tileTexture = visualTileset.getTileTexture(tile)
+                val tileTexture = tileset.getTileTexture(tile)
                 batch.draw(tileTexture, drawX, drawY, 1f, 1f)
                 drawX++
             }

@@ -5,12 +5,18 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
-import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
-import com.fangelo.libraries.ashley.components.*
-import com.fangelo.libraries.ashley.data.Sprite
+import com.fangelo.libraries.light.Light
+import com.fangelo.libraries.light.WorldLight
+import com.fangelo.libraries.sprite.Sprite
+import com.fangelo.libraries.tilemap.Tileset
+import com.fangelo.libraries.physics.Rigidbody
+import com.fangelo.libraries.physics.World
+import com.fangelo.libraries.sprite.VisualSprite
+import com.fangelo.libraries.tilemap.Tilemap
+import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.components.island.Island
 import com.fangelo.plunderous.client.game.components.island.VisualIsland
 import com.fangelo.plunderous.client.game.components.ship.MainShip
@@ -21,11 +27,11 @@ import ktx.box2d.BodyDefinition
 
 class WorldBuilder {
 
-    private val MapWidth = 128
-    private val MapHeight = 128
+    private val mapWidth = 128
+    private val mapHeight = 128
 
-    private val PlayerSpawnPositionX = MapWidth / 2.0f
-    private val PlayerSpawnPositionY = MapHeight / 2.0f
+    private val playerSpawnPositionX = mapWidth / 2.0f
+    private val playerSpawnPositionY = mapHeight / 2.0f
 
     private lateinit var engine: Engine
     private lateinit var assetManager: AssetManager
@@ -91,40 +97,40 @@ class WorldBuilder {
 
         val entity = engine.entity {
             with<World>()
+            with<WorldLight>()
         }
 
         mainWorld = entity.getComponent(World::class.java)
-        mainWorld?.buildBounds(MapWidth.toFloat(), MapHeight.toFloat())
+        mainWorld?.buildBounds(mapWidth.toFloat(), mapHeight.toFloat())
     }
 
     private fun addTilemap() {
         val tilesetAtlas = assetManager.get<TextureAtlas>("tiles/tiles.atlas")
         val tileset = buildTileset(tilesetAtlas)
-        val width = MapWidth
-        val height = MapHeight
-        val tiles = Array(width * height, { MathUtils.random(tileset.size - 1) })
+        val width = mapWidth
+        val height = mapHeight
+        val tiles = Array(width * height, { MathUtils.random(tileset.tilesTextures.size - 1) })
 
         engine.entity {
             with<Transform>()
             with<Tilemap> {
-                set(width, height, tiles)
-            }
-            with<VisualTileset> {
-                set(tileset)
+                set(width, height, tiles, tileset)
             }
         }
     }
 
-    private fun buildTileset(tilesetAtlas: TextureAtlas): Array<TextureRegion> {
+    private fun buildTileset(tilesetAtlas: TextureAtlas): Tileset {
 
-        return arrayOf(
-            tilesetAtlas.findRegion("water")
+        return Tileset(
+            arrayOf(
+                tilesetAtlas.findRegion("water")
+            )
         )
     }
 
 
     private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
-        return Array(amount, { _ -> Vector2(MathUtils.random() * (MapWidth - 4) + 2f, MathUtils.random() * (MapHeight - 4) + 2f) })
+        return Array(amount, { _ -> Vector2(MathUtils.random() * (mapWidth - 4) + 2f, MathUtils.random() * (mapHeight - 4) + 2f) })
     }
 
     private fun getRandomPositionsInsideCircle(radius: Float, amount: Int = 25): Array<Vector2> {
@@ -181,8 +187,8 @@ class WorldBuilder {
     }
 
     private fun isValidPosition(x: Float, y: Float): Boolean {
-        return x >= PlayerSpawnPositionX + 5.5f || x <= PlayerSpawnPositionX - 5.5f ||
-                y >= PlayerSpawnPositionY + 5.5f || y <= PlayerSpawnPositionY - 5.5f
+        return x >= playerSpawnPositionX + 5.5f || x <= playerSpawnPositionX - 5.5f ||
+                y >= playerSpawnPositionY + 5.5f || y <= playerSpawnPositionY - 5.5f
     }
 
 
@@ -193,17 +199,17 @@ class WorldBuilder {
 
         this.player = engine.entity {
             with<Transform> {
-                set(PlayerSpawnPositionX, PlayerSpawnPositionY, 0f)
+                set(playerSpawnPositionX, playerSpawnPositionY, 0f)
             }
             with<Rigidbody> {
                 set(mainWorld!!, buildShipBodyDefinition())
             }
-            with<VisualSprite> {
-                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
-            }
             with<Ship>()
             with<MainShip>()
             with<ShipInput>()
+            with<VisualSprite> {
+                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
+            }
             with<Light> {
                 set(mainWorld!!, 10.0f, Color.WHITE)
             }

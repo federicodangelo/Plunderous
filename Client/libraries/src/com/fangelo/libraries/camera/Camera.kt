@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.components
+package com.fangelo.libraries.camera
 
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.graphics.OrthographicCamera
@@ -7,8 +7,14 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
+import com.fangelo.libraries.transform.Transform
+import com.fangelo.libraries.render.VisualComponent
 
 class Camera : Component {
+
+    var id = ""
+    var enabled = true
+    var renderMask: Int = Int.MAX_VALUE
 
     var followTransform: Transform? = null
     var followTransformRotation = true
@@ -17,7 +23,7 @@ class Camera : Component {
 
     private var camera = OrthographicCamera()
 
-    val native: OrthographicCamera
+    internal val native: OrthographicCamera
         get() = this.camera
 
     val x: Float
@@ -56,7 +62,6 @@ class Camera : Component {
             }
             return camera.combined
         }
-
 
     init {
         camera = OrthographicCamera()
@@ -111,5 +116,9 @@ class Camera : Component {
         cameraBoundingBox.mul(Matrix4().rotateRad(0f, 0f, -1f, rotation))
 
         return cameraBoundingBox
+    }
+
+    fun shouldRenderVisualComponent(v: VisualComponent): Boolean {
+        return (renderMask and v.renderFlags) != 0
     }
 }

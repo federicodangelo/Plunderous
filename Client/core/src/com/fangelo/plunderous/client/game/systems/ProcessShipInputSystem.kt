@@ -5,7 +5,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.Body
-import com.fangelo.libraries.ashley.components.Rigidbody
+import com.fangelo.libraries.physics.Rigidbody
 import com.fangelo.plunderous.client.game.components.ship.Ship
 import com.fangelo.plunderous.client.game.components.ship.ShipInput
 import ktx.ashley.allOf

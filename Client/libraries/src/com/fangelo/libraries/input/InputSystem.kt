@@ -1,4 +1,4 @@
-package com.fangelo.libraries.ashley.systems
+package com.fangelo.libraries.input
 
 import com.badlogic.ashley.core.EntitySystem
 import com.fangelo.libraries.input.InputInfo
