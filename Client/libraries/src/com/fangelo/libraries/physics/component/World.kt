@@ -4,11 +4,10 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.Body
 import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
-import ktx.box2d.BodyDefinition
 import ktx.box2d.body
+import ktx.box2d.createWorld
 
 class World : Component {
 
@@ -26,66 +25,26 @@ class World : Component {
     val isEmpty: Boolean
         get() = bodies.isEmpty()
 
+    internal fun initNative() {
+        this.native = createWorld(gravity = Vector2())
+    }
+
+    internal fun destroyNative() {
+        if (!isEmpty)
+            Gdx.app.error("World", "Destroying non-empty world, bad things can happen!!")
+
+        this.native?.dispose()
+        this.native = null
+    }
+
     fun addRigidbody(rigidbody: Rigidbody, transform: Transform, entity: Entity) {
-        initRigidbody(entity, rigidbody, transform)
+        rigidbody.initNative(transform)
         bodies.add(entity)
     }
 
     fun removeRigidbody(rigidbody: Rigidbody, entity: Entity) {
         if (bodies.remove(entity))
-            destroyRigidbody(rigidbody)
-    }
-
-    private fun initRigidbody(entity: Entity, rigidbody: Rigidbody, transform: Transform) {
-        val bodyDefinition = rigidbody.definition
-
-        if (bodyDefinition == null) {
-            Gdx.app.error("World", "Missing body definition in rigidbody of entity $entity")
-            return
-        }
-
-        val native = this.native
-
-        if (native == null) {
-            Gdx.app.error("World", "Native world not initialized")
-            return
-        }
-
-        updateFromTransform(bodyDefinition, transform)
-
-        val body = native.createBody(rigidbody.definition)
-        body.userData = rigidbody
-        initFixtures(rigidbody, body, bodyDefinition)
-        bodyDefinition.creationCallback?.let { it(body) }
-
-        rigidbody.native = body
-    }
-
-    private fun destroyRigidbody(rigidbody: Rigidbody) {
-        val native = this.native
-
-        if (native == null) {
-            Gdx.app.error("World", "Native world not initialized")
-            return
-        }
-
-        native.destroyBody(rigidbody.native)
-        rigidbody.native = null
-    }
-
-    private fun updateFromTransform(bodyDefinition: BodyDefinition, transform: Transform) {
-        bodyDefinition.position.set(transform.x, transform.y)
-        bodyDefinition.angle = transform.rotation
-    }
-
-    private fun initFixtures(rigidbody: Rigidbody, body: Body, bodyDefinition: BodyDefinition) {
-        for (fixtureDefinition in bodyDefinition.fixtureDefinitions) {
-            val fixture = body.createFixture(fixtureDefinition)
-            fixture.userData = rigidbody
-            fixtureDefinition.creationCallback?.let { it(fixture) }
-            fixtureDefinition.shape.dispose()
-            fixtureDefinition.shape = null
-        }
+            rigidbody.destroyNative()
     }
 
     fun updatePhysics(deltaTime: Float) {
