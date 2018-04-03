@@ -292,6 +292,7 @@ class GameBuilder {
             with<VisualSprite> {
                 add(Sprite(playerRegion, 0.5f, 0.5f, 0f, -0.175f))
                 layer = 1
+                renderFlags = GameRenderFlags.ship
             }
             with<VisualAnimation> {
                 set(playerAnimations, "walk-east")

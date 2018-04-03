@@ -17,7 +17,9 @@ class Camera : Component {
     var renderMask: Int = Int.MAX_VALUE
 
     var followTransform: Transform? = null
+    var followTransformOffset = Vector2.Zero
     var followTransformRotation = true
+    var followTransformRotationOffset = 0f
 
     private var cameraChanged: Boolean = true
 
@@ -71,6 +73,7 @@ class Camera : Component {
     }
 
     internal fun update(x: Float, y: Float, rotation: Float) {
+
         if (x != camera.position.x) {
             camera.position.x = x
             cameraChanged = true
