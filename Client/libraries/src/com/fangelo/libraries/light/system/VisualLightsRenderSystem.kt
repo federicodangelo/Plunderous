@@ -47,10 +47,7 @@ class VisualLightsRenderSystem : VisualCameraRenderer() {
             if (!camera.shouldRenderVisualComponent(worldLight))
                 continue
 
-            val native = worldLight.native ?: continue
-
-            native.setCombinedMatrix(camera.native)
-            native.updateAndRender()
+            worldLight.renderNative(camera)
         }
     }
 

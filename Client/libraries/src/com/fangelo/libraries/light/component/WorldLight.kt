@@ -3,6 +3,7 @@ package com.fangelo.libraries.light.component
 import box2dLight.RayHandler
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.render.component.VisualComponent
 
@@ -48,5 +49,11 @@ class WorldLight : VisualComponent() {
         this.native = null
         this.world?.worldLight = null
         this.world = null
+    }
+
+    internal fun renderNative(camera: Camera) {
+        val native = this.native ?: return
+        native.setCombinedMatrix(camera.native)
+        native.updateAndRender()
     }
 }
