@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
+import com.fangelo.libraries.light.component.WorldLight
 import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
 import ktx.box2d.body
@@ -12,6 +13,7 @@ import ktx.box2d.createWorld
 class World : Component {
 
     internal var native: com.badlogic.gdx.physics.box2d.World? = null
+    internal var worldLight: WorldLight? = null
 
     private val maxStepTime = 1 / 45f
 

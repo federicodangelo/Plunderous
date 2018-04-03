@@ -1,12 +1,9 @@
 package com.fangelo.libraries.light.system
 
-import box2dLight.PointLight
-import box2dLight.RayHandler
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.EntityListener
 import com.badlogic.ashley.utils.ImmutableArray
-import com.badlogic.gdx.Gdx
 import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.light.component.Light
 import com.fangelo.libraries.light.component.WorldLight
@@ -27,7 +24,6 @@ class VisualLightsRenderSystem : VisualCameraRenderer() {
 
     private val worldLightsListener = WorldLightsListener()
     private val lightsListener = LightsListener()
-
 
     override fun addedToEngine(engine: Engine) {
         lights = engine.getEntitiesFor(allOf(Transform::class, Light::class).get())
@@ -68,58 +64,6 @@ class VisualLightsRenderSystem : VisualCameraRenderer() {
         }
     }
 
-    private fun initWorldLight(world: World, worldLight: WorldLight) {
-
-        RayHandler.isDiffuse = true
-        val fboDivisor = 8
-        val rayHandler = RayHandler(
-            world.native,
-            Gdx.graphics.width / fboDivisor,
-            Gdx.graphics.height / fboDivisor
-        )
-        rayHandler.setAmbientLight(worldLight.ambientLight)
-        rayHandler.setAmbientLight(worldLight.ambientLightIntensity)
-        rayHandler.setBlurNum(2)
-
-        worldLight.world = world
-        worldLight.native = rayHandler
-    }
-
-    private fun destroyWorldLight(worldLight: WorldLight) {
-        worldLight.native?.dispose()
-        worldLight.native = null
-        worldLight.world = null
-    }
-
-    private fun initLight(light: Light, transform: Transform) {
-
-        val world = light.world
-
-        if (world == null) {
-            Gdx.app.error("Light", "Missing world configuration in light $light")
-            return
-        }
-
-        val worldLight = findWorldLight(world)
-
-        if (worldLight == null) {
-            Gdx.app.error("Light", "WorldLight not found for world ${light.world}")
-            return
-        }
-
-        val native = PointLight(worldLight.native, light.rays, light.color, light.distance, transform.x, transform.y)
-        light.native = native
-    }
-
-    private fun findWorldLight(world: World): WorldLight? {
-        return worldLights.map { e -> worldLight.get(e) }.find { worldLight -> worldLight.world == world }
-    }
-
-    private fun destroyLight(light: Light) {
-        light.native?.remove(true)
-        light.native = null
-    }
-
     inner class WorldLightsListener : EntityListener {
 
         private val world = mapperFor<World>()
@@ -128,12 +72,12 @@ class VisualLightsRenderSystem : VisualCameraRenderer() {
         override fun entityAdded(entity: Entity) {
             val world = this.world.get(entity)
             val worldLight = this.worldLight.get(entity)
-            initWorldLight(world, worldLight)
+            worldLight.initNative(world)
         }
 
         override fun entityRemoved(entity: Entity) {
             val worldLight = this.worldLight.get(entity)
-            destroyWorldLight(worldLight)
+            worldLight.destroyNative()
         }
     }
 
@@ -146,12 +90,12 @@ class VisualLightsRenderSystem : VisualCameraRenderer() {
             val light = this.light.get(entity)
             val transform = this.transform.get(entity)
 
-            initLight(light, transform)
+            light.initNative(transform)
         }
 
         override fun entityRemoved(entity: Entity) {
             val light = this.light.get(entity)
-            destroyLight(light)
+            light.destroyNative()
         }
     }
 }
