@@ -5,6 +5,7 @@ import com.fangelo.libraries.sprite.Sprite
 
 class VisualSprite(sprite: Sprite? = null) : VisualComponent() {
 
+    var layer: Int = 0
     val sprites = mutableListOf<Sprite>()
 
     val mainSprite: Sprite?

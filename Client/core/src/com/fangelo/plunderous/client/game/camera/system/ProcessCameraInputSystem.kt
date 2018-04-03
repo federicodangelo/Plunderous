@@ -7,13 +7,13 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.input.InputInfo
-import com.fangelo.plunderous.client.game.constants.GameCameraIds
+import com.fangelo.plunderous.client.game.constants.GameCameraConstants
+import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 
 class ProcessCameraInputSystem : EntitySystem() {
 
-    private val switchToShipZoomLevel = 0.250f
     private val minZoomValue = 0.125f
     private val maxZoomValue = 2.0f
 
@@ -47,12 +47,10 @@ class ProcessCameraInputSystem : EntitySystem() {
             mainCamera.zoom = MathUtils.clamp(mainCamera.zoom + InputInfo.scrollingAmount * 0.1f, minZoomValue, maxZoomValue)
         }
 
-        if (mainCamera.zoom <= switchToShipZoomLevel) {
-            mainCamera.enabled = false
-            getShipCamera()?.enabled = true
+        if (mainCamera.zoom <= GameCameraConstants.switchToShipZoomLevel) {
+            mainCamera.renderMask = GameRenderFlags.main or GameRenderFlags.ship
         } else {
-            mainCamera.enabled = true
-            getShipCamera()?.enabled = false
+            mainCamera.renderMask = GameRenderFlags.main
         }
     }
 
@@ -69,10 +67,6 @@ class ProcessCameraInputSystem : EntitySystem() {
     }
 
     private fun getMainCamera(): Camera? {
-        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == GameCameraIds.main }
-    }
-
-    private fun getShipCamera(): Camera? {
-        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == GameCameraIds.ship }
+        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == GameCameraConstants.mainCameraId }
     }
 }

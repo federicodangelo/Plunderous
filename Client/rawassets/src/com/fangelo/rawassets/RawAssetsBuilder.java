@@ -6,6 +6,7 @@ import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
 import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
 import com.fangelo.rawassets.tasks.AssetBuilderTask;
 import com.fangelo.rawassets.tasks.BuildItemsAtlas;
+import com.fangelo.rawassets.tasks.BuildPlayersAtlas;
 import com.fangelo.rawassets.tasks.BuildShipsAtlas;
 import com.fangelo.rawassets.tasks.BuildTilesAtlas;
 import com.fangelo.rawassets.tasks.BuildUIAtlas;
@@ -26,6 +27,7 @@ public class RawAssetsBuilder extends ApplicationAdapter {
 		AssetBuilderTask[] tasks = new AssetBuilderTask[] { //
 				new BuildUIAtlas(), //
 				new BuildShipsAtlas(), //
+				new BuildPlayersAtlas(), //
 				new BuildTilesAtlas(), //
 				new BuildItemsAtlas() //
 		};

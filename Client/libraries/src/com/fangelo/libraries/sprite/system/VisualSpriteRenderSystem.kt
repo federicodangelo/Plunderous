@@ -3,13 +3,14 @@ package com.fangelo.libraries.sprite.system
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.utils.ImmutableArray
+import com.badlogic.gdx.graphics.g2d.Sprite
 import com.badlogic.gdx.graphics.g2d.SpriteBatch
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.camera.component.Camera
-import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.render.system.VisualCameraRenderer
 import com.fangelo.libraries.sprite.component.VisualSprite
+import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.utils.MutableListUtils
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
@@ -20,7 +21,6 @@ class VisualSpriteRenderSystem : VisualCameraRenderer() {
 
     private val transform = mapperFor<Transform>()
     private val visual = mapperFor<VisualSprite>()
-    private val camera = mapperFor<Camera>()
 
     private lateinit var batch: SpriteBatch
 
@@ -43,18 +43,26 @@ class VisualSpriteRenderSystem : VisualCameraRenderer() {
     private fun sortEntities() {
         sortedEntities.clear()
         sortedEntities.addAll(entities)
-        //sortedEntities.sortWith(EntitiesSorterByY)
         MutableListUtils.nonAllocatingSort(sortedEntities, EntitiesSorterByY)
     }
 
     companion object EntitiesSorterByY : Comparator<Entity> {
 
         private val transform = mapperFor<Transform>()
+        private val visualSprite = mapperFor<VisualSprite>()
 
         override fun compare(a: Entity, b: Entity): Int {
 
             val y1 = transform.get(a).y
             val y2 = transform.get(b).y
+
+            val layer1 = visualSprite.get(a).layer
+            val layer2 = visualSprite.get(b).layer
+
+            if (layer1 > layer2)
+                return 1
+            else if (layer1 < layer2)
+                return -1
 
             if (y1 > y2)
                 return 1

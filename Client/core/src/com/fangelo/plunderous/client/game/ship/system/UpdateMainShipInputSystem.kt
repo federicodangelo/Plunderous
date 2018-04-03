@@ -7,10 +7,10 @@ import com.badlogic.ashley.utils.ImmutableArray
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.Input
 import com.fangelo.libraries.camera.component.Camera
-import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.input.InputInfo
+import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.ui.ScreenManager
-import com.fangelo.plunderous.client.game.constants.GameCameraIds
+import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.ship.component.MainShip
 import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.component.ShipInput
@@ -34,7 +34,7 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
 
         shipInput.reset()
 
-        if (!isMainCameraEnabled())
+        if (isMainCameraZoomedOnShip())
             return
 
         updateTouchInput(shipInput, transform)
@@ -42,7 +42,7 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
     }
 
     private fun updateTouchInput(shipInput: ShipInput, transform: Transform) {
-        if (!InputInfo.touching || InputInfo.touchingTime < 0.25f || InputInfo.zooming)
+        if (!InputInfo.touching || InputInfo.touchingTime < 0.1f || InputInfo.zooming)
             return
 
         val camera = getMainCamera() ?: return
@@ -60,25 +60,31 @@ class UpdateMainShipInputSystem : IteratingSystem(allOf(Ship::class, ShipInput::
         val forwardDistance = touchLocalPos.y
         val rightDistance = touchLocalPos.x
 
-        if (forwardDistance > 2.0f) {
+        val minDistance = 2.0f
+
+        if (forwardDistance > minDistance) {
             shipInput.forward = true
-        } else if (forwardDistance < -2.0f) {
+        } else if (forwardDistance < -minDistance) {
             shipInput.backward = true
         }
 
-        if (rightDistance > 2.0f) {
+        if (rightDistance > minDistance) {
             shipInput.right = true
-        } else if (rightDistance < -2.0f) {
+        } else if (rightDistance < -minDistance) {
             shipInput.left = true
         }
     }
 
-    private fun isMainCameraEnabled(): Boolean {
-        return getMainCamera()?.enabled ?: false
+    private fun isMainCameraZoomedOnShip(): Boolean {
+        return getMainCameraZoom() <= GameCameraConstants.switchToShipZoomLevel
+    }
+
+    private fun getMainCameraZoom(): Float {
+        return getMainCamera()?.zoom ?: 0f
     }
 
     private fun getMainCamera(): Camera? {
-        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == GameCameraIds.main }
+        return cameras.map { entity -> camera.get(entity) }.find { camera -> camera.id == GameCameraConstants.mainCameraId }
     }
 
     private fun updateKeyboardInput(shipInput: ShipInput) {

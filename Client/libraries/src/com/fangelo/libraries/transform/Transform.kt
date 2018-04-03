@@ -12,6 +12,10 @@ class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) 
         return this
     }
 
+    fun worldRotationToLocalRotation(rotRad: Float): Float {
+        return rotRad - this.rotation
+    }
+
     fun worldPositionToLocalPosition(worldPos: Vector2): Vector2 {
         return worldPositionToLocalPosition(worldPos.x, worldPos.y)
     }
@@ -24,6 +28,20 @@ class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) 
         return vector
     }
 
+    fun localRotationToWorldRotation(rotRad: Float): Float {
+        return rotRad + this.rotation
+    }
+
+    fun localPositionToWorldPosition(localPos: Vector2): Vector2 {
+        return localPositionToWorldPosition(localPos.x, localPos.y)
+    }
+
+    fun localPositionToWorldPosition(x: Float, y: Float): Vector2 {
+        var vector = Vector2(x, y)
+        vector.rotateRad(this.rotation)
+        vector.add(this.x, this.y)
+        return vector
+    }
 
     val forward: Vector2
         get() = Vector2(-MathUtils.sin(rotation), MathUtils.cos(rotation))

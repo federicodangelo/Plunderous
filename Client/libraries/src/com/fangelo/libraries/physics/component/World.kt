@@ -12,6 +12,8 @@ import ktx.box2d.createWorld
 
 class World : Component {
 
+    var followTransform: Transform? = null
+
     internal var native: com.badlogic.gdx.physics.box2d.World? = null
     internal var worldLight: WorldLight? = null
 
@@ -39,17 +41,17 @@ class World : Component {
         this.native = null
     }
 
-    fun addRigidbody(rigidbody: Rigidbody, transform: Transform, entity: Entity) {
+    internal fun addRigidbody(rigidbody: Rigidbody, transform: Transform, entity: Entity) {
         rigidbody.initNative(transform)
         bodies.add(entity)
     }
 
-    fun removeRigidbody(rigidbody: Rigidbody, entity: Entity) {
+    internal fun removeRigidbody(rigidbody: Rigidbody, entity: Entity) {
         if (bodies.remove(entity))
             rigidbody.destroyNative()
     }
 
-    fun updatePhysics(deltaTime: Float) {
+    internal fun updatePhysics(deltaTime: Float) {
         val native = this.native
 
         if (native == null) {
@@ -68,19 +70,29 @@ class World : Component {
     }
 
     private fun updateBodiesTransforms() {
+
+        val followTransform = followTransform
+
         for (entity in bodies) {
             val transform = this.transform.get(entity)
             val rigidbody = this.rigidbody.get(entity)
             val bodyNative = rigidbody.native ?: continue
 
-            val position = bodyNative.position
+            var position = bodyNative.position
+            var rotation = bodyNative.angle
+
+            if (followTransform != null) {
+                position = followTransform.localPositionToWorldPosition(position)
+                rotation = followTransform.localRotationToWorldRotation(rotation)
+            }
+
             transform.x = position.x
             transform.y = position.y
-            transform.rotation = bodyNative.angle
+            transform.rotation = rotation
         }
     }
 
-    fun buildBounds(width: Float, height: Float) {
+    fun buildBounds(width: Float, height: Float, thick: Float = 1f) {
 
         val native = this.native
 
@@ -93,28 +105,32 @@ class World : Component {
         native.body {
             box(
                 height = height,
-                position = Vector2(0f, height * 0.5f)
+                width = thick,
+                position = Vector2(-width * 0.5f, 0f)
             )
         }
         //Right
         native.body {
             box(
                 height = height,
-                position = Vector2(width, height * 0.5f)
+                width = thick,
+                position = Vector2(width * 0.5f, 0f)
             )
         }
         //Top
         native.body {
             box(
                 width = width,
-                position = Vector2(width * 0.5f, 0f)
+                height = thick,
+                position = Vector2(0f, -height * 0.5f)
             )
         }
         //Bottom
         native.body {
             box(
                 width = width,
-                position = Vector2(width * 0.5f, height)
+                height = thick,
+                position = Vector2(0f, height * 0.5f)
             )
         }
     }

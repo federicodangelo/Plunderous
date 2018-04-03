@@ -56,11 +56,11 @@ class VisualTilemapRenderSystem : VisualCameraRenderer() {
 
             val bounds = renderBoundsCalculator.calculate(camera, tilemap, tilemapTransform, tmpBounds)
 
-            drawFloor(bounds, tilemap)
+            drawTilemap(bounds, tilemap)
         }
     }
 
-    private fun drawFloor(bounds: VisualTilemapRenderBounds, tilemap: Tilemap) {
+    private fun drawTilemap(bounds: VisualTilemapRenderBounds, tilemap: Tilemap) {
         val renderOffsetX = bounds.renderOffsetX.toFloat()
         val tileset = tilemap.tileset ?: return
 

@@ -22,14 +22,14 @@ class VisualTilemapRenderBoundsCalculator {
         val cameraPositionX = camera.x - extraTilesToDraw
         val cameraPositionY = camera.y + extraTilesToDraw
 
-        val offsetX = tilemapTransform.x.toInt()
-        val offsetY = tilemapTransform.y.toInt()
+        val width = tilemap.width
+        val height = tilemap.height
+
+        val offsetX = (tilemapTransform.x - width * 0.5f).toInt()
+        val offsetY = (tilemapTransform.y - height * 0.5f).toInt()
 
         val offsetXscreen = offsetX.toFloat()
         val offsetYscreen = offsetY.toFloat()
-
-        val width = tilemap.width
-        val height = tilemap.height
 
         val viewBoundsX = cameraPositionX - offsetXscreen - viewPortWidth / 2
         val viewBoundsY = cameraPositionY - offsetYscreen - viewPortHeight / 2

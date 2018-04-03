@@ -19,8 +19,11 @@ import com.fangelo.libraries.sprite.system.UpdateVisualAnimationSystem
 import com.fangelo.libraries.sprite.system.VisualSpriteRenderSystem
 import com.fangelo.libraries.tilemap.system.VisualTilemapRenderSystem
 import com.fangelo.libraries.transform.Transform
+import com.fangelo.plunderous.client.game.avatar.system.ProcessAvatarInputSystem
+import com.fangelo.plunderous.client.game.avatar.system.UpdateAvatarAnimationSystem
+import com.fangelo.plunderous.client.game.avatar.system.UpdateMainAvatarInputSystem
 import com.fangelo.plunderous.client.game.camera.system.ProcessCameraInputSystem
-import com.fangelo.plunderous.client.game.constants.GameCameraIds
+import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
@@ -38,7 +41,6 @@ class Game {
 
     private val engine = PooledEngine()
     private val mainCamera: Camera
-    private val shipCamera: Camera
     private val assetManager = AssetManager()
     private var debugEnabled = false
 
@@ -47,8 +49,6 @@ class Game {
         loadAssets()
 
         mainCamera = addMainCamera()
-
-        shipCamera = addShipCamera()
 
         initEngineSystems()
 
@@ -71,7 +71,7 @@ class Game {
     private fun buildGame() {
         val gameBuilder = GameBuilder()
         gameBuilder.build(engine, assetManager)
-        this.player = gameBuilder.player
+        this.player = gameBuilder.playerShip
     }
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
@@ -83,10 +83,13 @@ class Game {
 
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
-        engine.addSystem(UpdateCameraSystem())
         engine.addSystem(UpdateMainShipInputSystem())
-        engine.addSystem(ProcessCameraInputSystem())
+        engine.addSystem(UpdateMainAvatarInputSystem())
         engine.addSystem(ProcessShipInputSystem())
+        engine.addSystem(ProcessAvatarInputSystem())
+        engine.addSystem(ProcessCameraInputSystem())
+        engine.addSystem(UpdateCameraSystem())
+        engine.addSystem(UpdateAvatarAnimationSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(InputSystem())
         engine.addSystem(cameraRenderSystem)
@@ -113,6 +116,7 @@ class Game {
         assetManager.load<TextureAtlas>("tiles/tiles.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.load<TextureAtlas>("items/items.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.load<TextureAtlas>("ships/ships.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
+        assetManager.load<TextureAtlas>("players/players.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.finishLoading()
     }
 
@@ -123,23 +127,8 @@ class Game {
                 set(16.5f, 16.5f, 0f)
             }
             with<Camera> {
-                id = GameCameraIds.main
+                id = GameCameraConstants.mainCameraId
                 renderMask = GameRenderFlags.main
-            }
-        }
-
-        return entity.getComponent(Camera::class.java)
-    }
-
-    private fun addShipCamera(): Camera {
-
-        val entity = engine.entity {
-            with<Transform> {
-                set(2f, 3.5f, 0f)
-            }
-            with<Camera> {
-                id = GameCameraIds.ship
-                renderMask = GameRenderFlags.ship
             }
         }
 
@@ -162,7 +151,6 @@ class Game {
         var scale = height.toDouble() / REF_HEIGHT_IN_TILES.toDouble()
         scale = 1.0 / scale
         mainCamera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
-        shipCamera.resize((width.toDouble() * scale).toInt(), (height.toDouble() * scale).toInt())
     }
 
     fun dispose() {

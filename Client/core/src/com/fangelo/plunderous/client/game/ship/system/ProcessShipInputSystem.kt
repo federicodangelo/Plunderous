@@ -54,7 +54,7 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         else if (shipInput.backward)
             desiredSpeed = -ship.maxSpeed * 0.1f
 
-        //find current speed in forward direction
+        //find current speed in up direction
         var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
         var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
 

@@ -10,7 +10,7 @@ class Rigidbody : Component {
 
     var definition: BodyDefinition? = null
     var world: World? = null
-    var native: Body? = null
+    var native: Body? = null //TODO: Make internal!!
 
     fun set(world: World, definition: BodyDefinition) {
         this.world = world

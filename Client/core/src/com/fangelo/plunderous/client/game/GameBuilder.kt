@@ -4,20 +4,25 @@ import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.fangelo.libraries.light.component.Light
 import com.fangelo.libraries.light.component.WorldLight
 import com.fangelo.libraries.physics.component.Rigidbody
-import com.fangelo.libraries.physics.component.VisualWorld
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.sprite.Sprite
+import com.fangelo.libraries.sprite.component.VisualAnimation
 import com.fangelo.libraries.sprite.component.VisualSprite
 import com.fangelo.libraries.tilemap.Tileset
 import com.fangelo.libraries.tilemap.component.Tilemap
 import com.fangelo.libraries.transform.Transform
+import com.fangelo.plunderous.client.game.avatar.component.Avatar
+import com.fangelo.plunderous.client.game.avatar.component.AvatarInput
+import com.fangelo.plunderous.client.game.avatar.component.MainAvatar
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import com.fangelo.plunderous.client.game.island.component.Island
 import com.fangelo.plunderous.client.game.island.component.VisualIsland
@@ -26,19 +31,23 @@ import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.component.ShipInput
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
+import ktx.collections.toGdxArray
 
 class GameBuilder {
 
     private val mapWidth = 128
     private val mapHeight = 128
 
-    private val playerSpawnPositionX = mapWidth / 2.0f
-    private val playerSpawnPositionY = mapHeight / 2.0f
+    private val playerShipSpawnPositionX = 0f
+    private val playerShipSpawnPositionY = 0f
 
     private lateinit var engine: Engine
     private lateinit var assetManager: AssetManager
 
-    var player: Entity? = null
+    var playerShip: Entity? = null
+        private set
+
+    var playerAvatar: Entity? = null
         private set
 
     var mainWorld: World? = null
@@ -55,7 +64,7 @@ class GameBuilder {
         addMainWorld()
         addWater()
         addPlayerShip()
-        addPlayerShipWorld()
+        addPlayerAvatar()
         addIslands()
     }
 
@@ -104,7 +113,6 @@ class GameBuilder {
         val entity = engine.entity {
             with<World>()
             with<WorldLight>()
-            with<VisualWorld>()
         }
 
         mainWorld = entity.getComponent(World::class.java)
@@ -135,9 +143,13 @@ class GameBuilder {
         )
     }
 
-
     private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
-        return Array(amount, { _ -> Vector2(MathUtils.random() * (mapWidth - 4) + 2f, MathUtils.random() * (mapHeight - 4) + 2f) })
+        return Array(amount, { _ ->
+            Vector2(
+                MathUtils.random(-mapWidth * 0.5f + 2f, mapWidth * 0.5f - 2f),
+                MathUtils.random(-mapHeight * 0.5f + 2f, mapHeight * 0.5f - 2f)
+            )
+        })
     }
 
     private fun getRandomPositionsInsideCircle(radius: Float, amount: Int = 25): Array<Vector2> {
@@ -194,19 +206,17 @@ class GameBuilder {
     }
 
     private fun isValidPosition(x: Float, y: Float): Boolean {
-        return x >= playerSpawnPositionX + 5.5f || x <= playerSpawnPositionX - 5.5f ||
-                y >= playerSpawnPositionY + 5.5f || y <= playerSpawnPositionY - 5.5f
+        return Vector2.dst2(x, y, playerShipSpawnPositionX, playerShipSpawnPositionY) >= 5.5f * 5.5f
     }
-
 
     private fun addPlayerShip() {
 
-        val playersAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
-        val playerRegion = playersAtlas.findRegion("ship")
+        val shipAtlas = assetManager.get<TextureAtlas>("ships/ships.atlas")
+        val shipRegion = shipAtlas.findRegion("ship")
 
-        this.player = engine.entity {
+        val playerShip = engine.entity {
             with<Transform> {
-                set(playerSpawnPositionX, playerSpawnPositionY, 0f)
+                set(playerShipSpawnPositionX, playerShipSpawnPositionY, 0f)
             }
             with<Rigidbody> {
                 set(mainWorld!!, buildShipBodyDefinition())
@@ -215,28 +225,22 @@ class GameBuilder {
             with<MainShip>()
             with<ShipInput>()
             with<VisualSprite> {
-                add(Sprite(playerRegion, 2f, 3f, 0f, 0f))
+                add(Sprite(shipRegion, 2f, 3f, 0f, 0f))
             }
             with<Light> {
                 set(mainWorld!!, 10.0f, Color.WHITE)
             }
-        }
-    }
-
-    private fun addPlayerShipWorld() {
-
-        val entity = engine.entity {
             with<World>()
             with<WorldLight> {
                 renderFlags = GameRenderFlags.ship
             }
-            with<VisualWorld> {
-                renderFlags = GameRenderFlags.ship
-            }
         }
 
-        shipWorld = entity.getComponent(World::class.java)
-        shipWorld?.buildBounds(4f, 7f)
+        shipWorld = playerShip.getComponent(World::class.java)
+        shipWorld?.followTransform = playerShip.getComponent(Transform::class.java)
+        shipWorld?.buildBounds(2f, 3f, 0.25f)
+
+        this.playerShip = playerShip
     }
 
     private fun buildShipBodyDefinition(): BodyDefinition {
@@ -248,11 +252,11 @@ class GameBuilder {
 
         val shipFront = 1.45f
 
-        val playerBodyDefinition = BodyDefinition()
+        val shipBodyDefinition = BodyDefinition()
 
-        playerBodyDefinition.type = BodyDef.BodyType.DynamicBody
+        shipBodyDefinition.type = BodyDef.BodyType.DynamicBody
 
-        playerBodyDefinition.polygon(
+        shipBodyDefinition.polygon(
             Vector2(-shipBackHalfWidth, shipBack),
             Vector2(-shipMiddleHalfWidth, shipMiddle),
             Vector2(0f, shipFront),
@@ -263,8 +267,85 @@ class GameBuilder {
             restitution = 0f
             friction = 0.2f
         }
+        shipBodyDefinition.linearDamping = 0.5f
+        shipBodyDefinition.angularDamping = 0.9f
+        return shipBodyDefinition
+    }
+
+
+    private fun addPlayerAvatar() {
+
+        val playersAtlas = assetManager.get<TextureAtlas>("players/players.atlas")
+        val playerRegion = playersAtlas.findRegion("player-walk-south-0")
+        val playerAnimations = buildPlayerAnimations("player", playersAtlas)
+
+        val playerAvatar = engine.entity {
+            with<Transform> {
+                set(0f, 0f, 0f)
+            }
+            with<Rigidbody> {
+                set(shipWorld!!, buildPlayerBodyDefinition())
+            }
+            with<Avatar>()
+            with<MainAvatar>()
+            with<AvatarInput>()
+            with<VisualSprite> {
+                add(Sprite(playerRegion, 0.5f, 0.5f, 0f, -0.175f))
+                layer = 1
+            }
+            with<VisualAnimation> {
+                set(playerAnimations, "walk-east")
+            }
+            with<Light> {
+                set(shipWorld!!, 2.0f, Color.WHITE)
+            }
+        }
+
+        this.playerAvatar = playerAvatar
+    }
+
+
+    private fun buildPlayerAnimations(playerName: String, playersAtlas: TextureAtlas): Map<String, Animation<TextureRegion>> {
+        val animations = mutableMapOf<String, Animation<TextureRegion>>()
+
+        addAnimations(animations, playersAtlas, playerName, "walk-north", 9, Animation.PlayMode.LOOP)
+        addAnimations(animations, playersAtlas, playerName, "walk-west", 9, Animation.PlayMode.LOOP)
+        addAnimations(animations, playersAtlas, playerName, "walk-south", 9, Animation.PlayMode.LOOP)
+        addAnimations(animations, playersAtlas, playerName, "walk-east", 9, Animation.PlayMode.LOOP)
+
+        return animations
+    }
+
+    private fun addAnimations(
+        animations: MutableMap<String, Animation<TextureRegion>>, atlas: TextureAtlas, playerName: String, animationPrefix: String,
+        totalFrames: Int, playMode: Animation.PlayMode
+    ) {
+
+        val frames: MutableList<TextureRegion> = mutableListOf()
+
+        for (frameNumber in 0 until totalFrames) {
+            val frame = atlas.findRegion("$playerName-$animationPrefix-$frameNumber")!!
+            frames.add(frame)
+        }
+
+        val animation = Animation<TextureRegion>(0.1f, frames.toGdxArray(), playMode)
+
+        animations[animationPrefix] = animation
+    }
+
+    private fun buildPlayerBodyDefinition(): BodyDefinition {
+
+        val playerBodyDefinition = BodyDefinition()
+
+        playerBodyDefinition.type = BodyDef.BodyType.DynamicBody
+
+        playerBodyDefinition.circle(0.1f) {
+            density = 1f
+            restitution = 0f
+            friction = 0.2f
+        }
         playerBodyDefinition.linearDamping = 0.5f
-        playerBodyDefinition.angularDamping = 0.9f
+        playerBodyDefinition.fixedRotation = true
         return playerBodyDefinition
     }
 
