@@ -27,6 +27,7 @@ import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
+import com.fangelo.plunderous.client.game.ship.system.ShipInputProvider
 import com.fangelo.plunderous.client.game.ship.system.UpdateMainShipInputSystem
 import ktx.ashley.entity
 import ktx.ashley.get
@@ -44,13 +45,13 @@ class Game {
     private val assetManager = AssetManager()
     private var debugEnabled = false
 
-    init {
+    constructor(shipInputProvider: ShipInputProvider) {
 
         loadAssets()
 
         mainCamera = addMainCamera()
 
-        initEngineSystems()
+        initEngineSystems(shipInputProvider)
 
         resize(Gdx.graphics.width, Gdx.graphics.height)
 
@@ -77,13 +78,13 @@ class Game {
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
     private lateinit var lightsRendererSystem: VisualLightsRenderSystem
 
-    private fun initEngineSystems() {
+    private fun initEngineSystems(shipInputProvider: ShipInputProvider) {
 
         var cameraRenderSystem = VisualCameraRenderSystem()
 
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
-        engine.addSystem(UpdateMainShipInputSystem())
+        engine.addSystem(UpdateMainShipInputSystem(shipInputProvider))
         engine.addSystem(UpdateMainAvatarInputSystem())
         engine.addSystem(ProcessShipInputSystem())
         engine.addSystem(ProcessAvatarInputSystem())

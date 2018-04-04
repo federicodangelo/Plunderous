@@ -216,7 +216,7 @@ class GameBuilder {
 
         val playerShip = engine.entity {
             with<Transform> {
-                set(playerShipSpawnPositionX, playerShipSpawnPositionY, 0f)
+                set(playerShipSpawnPositionX, playerShipSpawnPositionY, MathUtils.PI)
             }
             with<Rigidbody> {
                 set(mainWorld!!, buildShipBodyDefinition())

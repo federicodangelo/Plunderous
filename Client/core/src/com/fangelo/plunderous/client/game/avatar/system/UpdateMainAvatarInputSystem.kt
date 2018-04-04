@@ -55,12 +55,12 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
 
         var touchWorldPos = camera.screenPositionToWorldPosition(x.toFloat(), y.toFloat())
 
-        var touchLocalPos = touchWorldPos.sub(transform.x, transform.y)
+        var touchLocalPos = transform.worldPositionToLocalPosition(touchWorldPos)
 
         val forwardDistance = touchLocalPos.y
         val rightDistance = touchLocalPos.x
 
-        val minDistance = 0.5f
+        val minDistance = 0.1f
 
         if (forwardDistance > minDistance) {
             avatarInput.down = true
@@ -69,9 +69,9 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
         }
 
         if (rightDistance > minDistance) {
-            avatarInput.right = true
-        } else if (rightDistance < -minDistance) {
             avatarInput.left = true
+        } else if (rightDistance < -minDistance) {
+            avatarInput.right = true
         }
     }
 

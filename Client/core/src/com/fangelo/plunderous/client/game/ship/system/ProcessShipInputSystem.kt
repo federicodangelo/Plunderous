@@ -40,7 +40,7 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
         var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
 
-        var torqueForce = (currentSpeed / ship.maxSpeed) * (ship.rudderRotation / ship.maxRudderRotation) * ship.maxRudderTorque
+        var torqueForce = (currentSpeed / ship.maxForwardSpeed) * (ship.rudderRotation / ship.maxRudderRotation) * ship.maxRudderTorque
 
         if (torqueForce.absoluteValue > 0.01f)
             body.applyTorque(torqueForce, true)
@@ -48,13 +48,9 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
     private fun updateDrive(ship: Ship, body: Body, shipInput: ShipInput) {
 
-        var desiredSpeed = 0f
-        if (shipInput.forward)
-            desiredSpeed = ship.maxSpeed
-        else if (shipInput.backward)
-            desiredSpeed = -ship.maxSpeed * 0.1f
+        var desiredSpeed = MathUtils.clamp(shipInput.targetSpeed, ship.maxBackwardSpeed, ship.maxForwardSpeed)
 
-        //find current speed in up direction
+        //find current targetSpeed in up direction
         var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
         var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
 
@@ -89,10 +85,9 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
     }
 
     private fun updateRudder(shipInput: ShipInput, ship: Ship, deltaTime: Float) {
-        if (shipInput.right)
+        if (shipInput.targetRudderRotation > ship.rudderRotation)
             rotateRudderRight(ship, deltaTime)
-
-        if (shipInput.left)
+        else if (shipInput.targetRudderRotation < ship.rudderRotation)
             rotateRudderLeft(ship, deltaTime)
     }
 

@@ -1,11 +1,11 @@
 package com.fangelo.plunderous.client.ui.dialog
 
-import com.fangelo.plunderous.client.Context
-import com.fangelo.plunderous.client.game.Game
-import com.fangelo.plunderous.client.ui.screen.InGameScreen
 import com.fangelo.libraries.ui.Dialog
 import com.fangelo.libraries.ui.DialogResult
 import com.fangelo.libraries.ui.ScreenManager
+import com.fangelo.plunderous.client.Context
+import com.fangelo.plunderous.client.game.Game
+import com.fangelo.plunderous.client.ui.screen.InGameScreen
 
 class LoadingGameDialog : Dialog("Loading") {
 
@@ -37,9 +37,11 @@ class LoadingGameDialog : Dialog("Loading") {
 
     private fun finishLoadingGame() {
 
-        Context.activeGame = Game()
+        val inGameScreen = InGameScreen()
 
-        ScreenManager.show(InGameScreen())
+        Context.activeGame = Game(inGameScreen)
+
+        ScreenManager.show(inGameScreen)
 
         close(DialogResult.Ok)
     }

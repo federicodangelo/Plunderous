@@ -7,10 +7,7 @@ import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
-import com.badlogic.gdx.scenes.scene2d.ui.Button
-import com.badlogic.gdx.scenes.scene2d.ui.Label
-import com.badlogic.gdx.scenes.scene2d.ui.Skin
-import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.badlogic.gdx.utils.Scaling
 import com.badlogic.gdx.utils.viewport.ScalingViewport
 import com.fangelo.libraries.debug.DebugSettings
@@ -234,17 +231,20 @@ object ScreenManager {
         val vector = Vector2(x, y)
         stage.screenToStageCoordinates(vector)
         val hit = stage.hit(vector.x, vector.y, true)
-        return isButton(hit)
+        return isInteractable(hit)
     }
 
-    private fun isButton(actor: Actor?): Boolean {
+    private fun isInteractable(actor: Actor?): Boolean {
         if (actor == null)
             return false
 
         if (actor is Button)
             return true
 
-        return isButton(actor.parent)
+        if (actor is Slider)
+            return true
+
+        return isInteractable(actor.parent)
     }
 
     internal fun internalDialogClosed(dialog: Dialog) {

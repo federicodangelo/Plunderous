@@ -4,8 +4,9 @@ import com.badlogic.ashley.core.Component
 
 class Ship : Component {
 
-    var maxSpeed = 3.0f
-    var driveForce = 30f
+    var maxForwardSpeed = 3.0f
+    var maxBackwardSpeed = -0.3f
+    var driveForce = 20f
 
     //Controlls steering
     var rudderRotation = 0f
