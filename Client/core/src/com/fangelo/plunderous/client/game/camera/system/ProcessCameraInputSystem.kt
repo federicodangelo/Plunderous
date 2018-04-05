@@ -50,7 +50,7 @@ class ProcessCameraInputSystem : EntitySystem() {
         if (mainCamera.zoom <= GameCameraConstants.switchToShipZoomLevel) {
             mainCamera.renderMask = GameRenderFlags.main or GameRenderFlags.ship
             mainCamera.followTransformRotation = true
-            mainCamera.followTransformRotationOffset = MathUtils.PI
+
         } else {
             mainCamera.renderMask = GameRenderFlags.main
             mainCamera.followTransformRotation = false

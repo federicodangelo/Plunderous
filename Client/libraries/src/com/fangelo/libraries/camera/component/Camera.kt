@@ -85,8 +85,8 @@ class Camera : Component, Pool.Poolable {
 
         if (rotation != this.rotation) {
             this.rotation = rotation
-            camera.up.x = -MathUtils.sin(rotation)
-            camera.up.y = MathUtils.cos(rotation)
+            camera.up.x = MathUtils.sin(rotation)
+            camera.up.y = -MathUtils.cos(rotation)
 
             cameraChanged = true
         }
