@@ -4,14 +4,14 @@ import com.badlogic.ashley.core.Component
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.light.component.WorldLight
 import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
 import ktx.box2d.body
 import ktx.box2d.createWorld
 
-class World : Component {
-
+class World : Component, Pool.Poolable {
     var followTransform: Transform? = null
 
     internal var native: com.badlogic.gdx.physics.box2d.World? = null
@@ -133,5 +133,11 @@ class World : Component {
                 position = Vector2(0f, height * 0.5f)
             )
         }
+    }
+
+    override fun reset() {
+        followTransform = null
+        native = null
+        worldLight = null
     }
 }

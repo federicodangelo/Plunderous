@@ -3,11 +3,11 @@ package com.fangelo.libraries.physics.component
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.Body
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.transform.Transform
 import ktx.box2d.BodyDefinition
 
-class Rigidbody : Component {
-
+class Rigidbody : Component, Pool.Poolable {
     var definition: BodyDefinition? = null
     var world: World? = null
     var native: Body? = null //TODO: Make internal!!
@@ -74,5 +74,11 @@ class Rigidbody : Component {
 
         world?.native?.destroyBody(native)
         this.native = null
+    }
+
+    override fun reset() {
+        definition = null
+        world = null
+        native = null
     }
 }

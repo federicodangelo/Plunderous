@@ -3,8 +3,9 @@ package com.fangelo.libraries.transform
 import com.badlogic.ashley.core.Component
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.utils.Pool
 
-class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) : Component {
+class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) : Component, Pool.Poolable {
     fun set(x: Float, y: Float, rotation: Float): Transform {
         this.x = x
         this.y = y
@@ -54,4 +55,10 @@ class Transform(var x: Float = 0f, var y: Float = 0f, var rotation: Float = 0f) 
 
     val left: Vector2
         get() = Vector2(MathUtils.cos(rotation), MathUtils.sin(rotation))
+
+    override fun reset() {
+        x = 0f
+        y = 0f
+        rotation = 0f
+    }
 }

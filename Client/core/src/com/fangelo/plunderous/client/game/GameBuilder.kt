@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
+import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.light.component.Light
 import com.fangelo.libraries.light.component.WorldLight
 import com.fangelo.libraries.physics.component.Rigidbody
@@ -17,32 +18,30 @@ import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.sprite.Sprite
 import com.fangelo.libraries.sprite.component.VisualAnimation
 import com.fangelo.libraries.sprite.component.VisualSprite
-import com.fangelo.libraries.tilemap.Tileset
-import com.fangelo.libraries.tilemap.component.Tilemap
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.avatar.component.Avatar
 import com.fangelo.plunderous.client.game.avatar.component.AvatarInput
 import com.fangelo.plunderous.client.game.avatar.component.MainAvatar
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
-import com.fangelo.plunderous.client.game.island.component.Island
-import com.fangelo.plunderous.client.game.island.component.VisualIsland
+import com.fangelo.plunderous.client.game.generator.component.GeneratorAreaSource
+import com.fangelo.plunderous.client.game.generator.generators.IslandsGeneratorFactory
 import com.fangelo.plunderous.client.game.ship.component.MainShip
 import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.component.ShipInput
+import com.fangelo.plunderous.client.game.water.component.VisualWater
+import com.fangelo.plunderous.client.game.water.component.Water
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
 import ktx.collections.toGdxArray
 
 class GameBuilder {
 
-    private val mapWidth = 128
-    private val mapHeight = 128
-
     private val playerShipSpawnPositionX = 0f
     private val playerShipSpawnPositionY = 0f
 
     private lateinit var engine: Engine
     private lateinit var assetManager: AssetManager
+    private lateinit var camera: Camera
 
     var playerShip: Entity? = null
         private set
@@ -56,56 +55,21 @@ class GameBuilder {
     var shipWorld: World? = null
         private set
 
-    fun build(engine: Engine, assetManager: AssetManager) {
+    fun build(engine: Engine, assetManager: AssetManager, camera: Camera) {
 
         this.engine = engine
         this.assetManager = assetManager
+        this.camera = camera
 
         addMainWorld()
         addWater()
         addPlayerShip()
         addPlayerAvatar()
-        addIslands()
+        addGenerators()
     }
 
-    private fun addIslands() {
-        getRandomPositions().forEach { pos -> addIsland(pos.x, pos.y, MathUtils.random(2.0f, 5.5f)) }
-    }
-
-    private fun addIsland(x: Float, y: Float, radius: Float) {
-
-        if (!isValidPosition(x, y))
-            return
-
-        engine.entity {
-            with<Transform> {
-                set(x, y, 0f)
-            }
-            with<Rigidbody> {
-                set(mainWorld!!, buildIslandBodyDefinition(radius))
-            }
-            with<Island> {
-                set(radius)
-            }
-            with<VisualIsland> {
-
-                set(Color.CORAL)
-            }
-        }
-
-        addIslandItems(radius, x, y)
-    }
-
-    private fun addIslandItems(radius: Float, x: Float, y: Float) {
-        val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
-
-        getRandomPositionsInsideCircle(radius - 1.0f, 5).forEach { pos ->
-            when (MathUtils.random(0, 2)) {
-                0 -> addSimpleItem(itemsAtlas, "rock1", pos.x + x, pos.y + y)
-                1 -> addSimpleItem(itemsAtlas, "rock2", pos.x + x, pos.y + y)
-                2 -> addTree(itemsAtlas, pos.x + x, pos.y + y)
-            }
-        }
+    private fun addGenerators() {
+        engine.entity().add(IslandsGeneratorFactory(engine, mainWorld!!, assetManager).buildComponent())
     }
 
     private fun addMainWorld() {
@@ -116,97 +80,18 @@ class GameBuilder {
         }
 
         mainWorld = entity.getComponent(World::class.java)
-        mainWorld?.buildBounds(mapWidth.toFloat(), mapHeight.toFloat())
     }
 
     private fun addWater() {
         val tilesetAtlas = assetManager.get<TextureAtlas>("tiles/tiles.atlas")
-        val tileset = buildTileset(tilesetAtlas)
-        val width = mapWidth
-        val height = mapHeight
-        val tiles = Array(width * height, { MathUtils.random(tileset.tilesTextures.size - 1) })
+        val waterTileTexture = tilesetAtlas.findRegion("water")
 
         engine.entity {
-            with<Transform>()
-            with<Tilemap> {
-                set(width, height, tiles, tileset)
+            with<Water>()
+            with<VisualWater> {
+                this.waterTileTexture = waterTileTexture
             }
         }
-    }
-
-    private fun buildTileset(tilesetAtlas: TextureAtlas): Tileset {
-
-        return Tileset(
-            arrayOf(
-                tilesetAtlas.findRegion("water")
-            )
-        )
-    }
-
-    private fun getRandomPositions(amount: Int = 25): Array<Vector2> {
-        return Array(amount, { _ ->
-            Vector2(
-                MathUtils.random(-mapWidth * 0.5f + 2f, mapWidth * 0.5f - 2f),
-                MathUtils.random(-mapHeight * 0.5f + 2f, mapHeight * 0.5f - 2f)
-            )
-        })
-    }
-
-    private fun getRandomPositionsInsideCircle(radius: Float, amount: Int = 25): Array<Vector2> {
-        return Array(amount, { _ -> clampToCircle(Vector2(MathUtils.random(-radius, radius), MathUtils.random(-radius, radius)), radius) })
-    }
-
-    private fun clampToCircle(vector: Vector2, radius: Float): Vector2 {
-
-        if (vector.len2() > radius * radius) {
-            vector.nor().scl(radius)
-        }
-
-        return vector
-    }
-
-    private fun addSimpleItem(itemsAtlas: TextureAtlas, name: String, x: Float, y: Float) {
-
-        if (!isValidPosition(x, y))
-            return
-
-        val scale = 0.5f
-
-        engine.entity {
-            with<Transform> {
-                set(x, y, 0f)
-            }
-            with<VisualSprite> {
-                add(Sprite(itemsAtlas.findRegion(name), scale, scale).setAnchorBottom())
-            }
-        }
-    }
-
-    private fun addTree(itemsAtlas: TextureAtlas, x: Float, y: Float) {
-
-        if (!isValidPosition(x, y))
-            return
-
-        val scale = 0.25f
-
-        engine.entity {
-            with<Transform> {
-                set(x, y, 0f)
-            }
-            with<VisualSprite> {
-                add(Sprite(itemsAtlas.findRegion("tree-trunk"), 2.0f * scale, 2.3f * scale))
-                sprites[0].setAnchorBottom()
-                sprites[0].offsetY += 0.25f * scale
-
-                add(Sprite(itemsAtlas.findRegion("tree-leaves"), 3f * scale, 2.5f * scale, 0f, 0f))
-                sprites[1].setAnchorBottom()
-                sprites[1].offsetY -= 1.75f * scale
-            }
-        }
-    }
-
-    private fun isValidPosition(x: Float, y: Float): Boolean {
-        return Vector2.dst2(x, y, playerShipSpawnPositionX, playerShipSpawnPositionY) >= 5.5f * 5.5f
     }
 
     private fun addPlayerShip() {
@@ -235,6 +120,13 @@ class GameBuilder {
                 renderFlags = GameRenderFlags.ship
             }
         }
+
+        val generatorAreaSource = GeneratorAreaSource()
+        generatorAreaSource.followCamera = camera
+        generatorAreaSource.followTransform = playerShip.getComponent(Transform::class.java)
+        generatorAreaSource.followTransformRadius = 5.0f
+
+        playerShip.add(generatorAreaSource)
 
         shipWorld = playerShip.getComponent(World::class.java)
         shipWorld?.followTransform = playerShip.getComponent(Transform::class.java)
@@ -350,12 +242,4 @@ class GameBuilder {
         return playerBodyDefinition
     }
 
-    private fun buildIslandBodyDefinition(radius: Float): BodyDefinition {
-        var islandBodyDefinition = BodyDefinition()
-
-        islandBodyDefinition.type = BodyDef.BodyType.StaticBody
-        islandBodyDefinition.circle(radius)
-
-        return islandBodyDefinition
-    }
 }

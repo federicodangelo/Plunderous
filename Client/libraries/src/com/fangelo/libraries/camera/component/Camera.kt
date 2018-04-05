@@ -7,11 +7,11 @@ import com.badlogic.gdx.math.Matrix4
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.math.Vector3
 import com.badlogic.gdx.math.collision.BoundingBox
-import com.fangelo.libraries.transform.Transform
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.render.component.VisualComponent
+import com.fangelo.libraries.transform.Transform
 
-class Camera : Component {
-
+class Camera : Component, Pool.Poolable {
     var id = ""
     var enabled = true
     var renderMask: Int = Int.MAX_VALUE
@@ -34,7 +34,7 @@ class Camera : Component {
     val y: Float
         get() = camera.position.y
 
-    var rotation: Float = MathUtils.PI
+    var rotation: Float = 0f
         private set
 
     var zoom: Float
@@ -116,12 +116,17 @@ class Camera : Component {
             Vector3(viewportWidth * zoom * 0.5f, viewportHeight * zoom * 0.5f, 0f).add(camera.position)
         )
 
-        cameraBoundingBox.mul(Matrix4().rotateRad(0f, 0f, -1f, rotation))
+        if (rotation != 0f)
+            cameraBoundingBox.mul(Matrix4().rotateRad(0f, 0f, -1f, rotation))
 
         return cameraBoundingBox
     }
 
     fun shouldRenderVisualComponent(v: VisualComponent): Boolean {
         return (renderMask and v.renderFlags) != 0
+    }
+
+    override fun reset() {
+        followTransform = null
     }
 }

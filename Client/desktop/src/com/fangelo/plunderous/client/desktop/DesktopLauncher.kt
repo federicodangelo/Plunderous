@@ -9,8 +9,8 @@ object DesktopLauncher {
     fun main(arg: Array<String>) {
         val config = LwjglApplicationConfiguration()
 
-        //config.width = 1366 //landscape!
-        //config.height = 768
+        //config.toX = 1366 //landscape!
+        //config.toY = 768
 
         val scale = 0.7f
 

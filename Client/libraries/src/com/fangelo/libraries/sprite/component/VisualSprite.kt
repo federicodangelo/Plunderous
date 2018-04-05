@@ -1,10 +1,10 @@
 package com.fangelo.libraries.sprite.component
 
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.render.component.VisualComponent
 import com.fangelo.libraries.sprite.Sprite
 
-class VisualSprite(sprite: Sprite? = null) : VisualComponent() {
-
+class VisualSprite(sprite: Sprite? = null) : VisualComponent(), Pool.Poolable {
     var layer: Int = 0
     val sprites = mutableListOf<Sprite>()
 
@@ -21,4 +21,8 @@ class VisualSprite(sprite: Sprite? = null) : VisualComponent() {
         return this
     }
 
+    override fun reset() {
+        layer = 0
+        sprites.clear()
+    }
 }

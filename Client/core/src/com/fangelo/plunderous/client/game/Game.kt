@@ -18,6 +18,7 @@ import com.fangelo.libraries.render.system.VisualCameraRenderSystem
 import com.fangelo.libraries.sprite.system.UpdateVisualAnimationSystem
 import com.fangelo.libraries.sprite.system.VisualSpriteRenderSystem
 import com.fangelo.libraries.tilemap.system.VisualTilemapRenderSystem
+import com.fangelo.libraries.tilemap.system.VisualWaterRenderSystem
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.avatar.system.ProcessAvatarInputSystem
 import com.fangelo.plunderous.client.game.avatar.system.UpdateAvatarAnimationSystem
@@ -25,6 +26,7 @@ import com.fangelo.plunderous.client.game.avatar.system.UpdateMainAvatarInputSys
 import com.fangelo.plunderous.client.game.camera.system.ProcessCameraInputSystem
 import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
+import com.fangelo.plunderous.client.game.generator.system.ProcessGeneratorSystem
 import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
 import com.fangelo.plunderous.client.game.ship.system.ShipInputProvider
@@ -71,7 +73,7 @@ class Game {
 
     private fun buildGame() {
         val gameBuilder = GameBuilder()
-        gameBuilder.build(engine, assetManager)
+        gameBuilder.build(engine, assetManager, mainCamera)
         this.player = gameBuilder.playerShip
     }
 
@@ -84,6 +86,7 @@ class Game {
 
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
+        engine.addSystem(ProcessGeneratorSystem())
         engine.addSystem(UpdateMainShipInputSystem(shipInputProvider))
         engine.addSystem(UpdateMainAvatarInputSystem())
         engine.addSystem(ProcessShipInputSystem())
@@ -93,14 +96,15 @@ class Game {
         engine.addSystem(UpdateAvatarAnimationSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
         engine.addSystem(InputSystem())
-        engine.addSystem(cameraRenderSystem)
 
+        cameraRenderSystem.addRenderer(VisualWaterRenderSystem())
         cameraRenderSystem.addRenderer(VisualTilemapRenderSystem())
         cameraRenderSystem.addRenderer(VisualIslandRenderSystem())
         cameraRenderSystem.addRenderer(VisualSpriteRenderSystem())
         lightsRendererSystem = cameraRenderSystem.addRenderer(VisualLightsRenderSystem())
         debugPhysicsSystem = cameraRenderSystem.addRenderer(VisualDebugPhysicsSystem())
 
+        engine.addSystem(cameraRenderSystem)
     }
 
     private fun disableDebug() {

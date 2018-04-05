@@ -3,12 +3,12 @@ package com.fangelo.libraries.light.component
 import box2dLight.PointLight
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.render.component.VisualComponent
 import com.fangelo.libraries.transform.Transform
 
-class Light(val rays: Int = 256) : VisualComponent() {
-
+class Light(val rays: Int = 256) : VisualComponent(), Pool.Poolable {
     var world: World? = null
     internal var native: PointLight? = null
 
@@ -59,5 +59,10 @@ class Light(val rays: Int = 256) : VisualComponent() {
     internal fun destroyNative() {
         this.native?.remove(true)
         this.native = null
+    }
+
+    override fun reset() {
+        world = null
+        native = null
     }
 }

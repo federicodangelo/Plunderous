@@ -1,17 +1,34 @@
 package com.fangelo.libraries.tilemap.system.utils
 
 import com.fangelo.libraries.camera.component.Camera
-import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.tilemap.component.Tilemap
+import com.fangelo.libraries.transform.Transform
 
 class VisualTilemapRenderBoundsCalculator {
-
-    private val extraTilesToDraw = 2
 
     fun calculate(
         camera: Camera,
         tilemap: Tilemap,
         tilemapTransform: Transform,
+        extraTilesToDraw: Int = 2,
+        toReturn: VisualTilemapRenderBounds? = null
+    ): VisualTilemapRenderBounds {
+        return calculate(
+            camera,
+            tilemapTransform.x, tilemapTransform.y,
+            tilemap.width, tilemap.height,
+            extraTilesToDraw,
+            toReturn
+        )
+    }
+
+    fun calculate(
+        camera: Camera,
+        tilemapX: Float,
+        tilemapY: Float,
+        tilemapWidth: Int,
+        tilemapHeight: Int,
+        extraTilesToDraw: Int = 2,
         toReturn: VisualTilemapRenderBounds? = null
     ): VisualTilemapRenderBounds {
 
@@ -22,25 +39,20 @@ class VisualTilemapRenderBoundsCalculator {
         val cameraPositionX = camera.x - extraTilesToDraw
         val cameraPositionY = camera.y + extraTilesToDraw
 
-        val width = tilemap.width
-        val height = tilemap.height
+        val offsetX = (tilemapX - tilemapWidth * 0.5).toInt()
+        val offsetY = (tilemapY - tilemapHeight * 0.5).toInt()
 
-        val offsetX = (tilemapTransform.x - width * 0.5f).toInt()
-        val offsetY = (tilemapTransform.y - height * 0.5f).toInt()
-
-        val offsetXscreen = offsetX.toFloat()
-        val offsetYscreen = offsetY.toFloat()
+        val offsetXscreen = offsetX.toDouble()
+        val offsetYscreen = offsetY.toDouble()
 
         val viewBoundsX = cameraPositionX - offsetXscreen - viewPortWidth / 2
         val viewBoundsY = cameraPositionY - offsetYscreen - viewPortHeight / 2
-        val viewBoundsWidth = viewPortWidth
-        val viewBoundsHeight = viewPortHeight
 
         val fromX = Math.max(0, viewBoundsX.toInt())
-        val toX = Math.min(width, (viewBoundsX + viewBoundsWidth + 1f).toInt())
+        val toX = Math.min(tilemapWidth, (viewBoundsX + viewPortWidth + 1f).toInt())
 
         val fromY = Math.max(0, viewBoundsY.toInt())
-        val toY = Math.min(height, (viewBoundsY + viewBoundsHeight + 1f).toInt())
+        val toY = Math.min(tilemapHeight, (viewBoundsY + viewPortHeight + 1f).toInt())
 
         val renderOffsetX = fromX + offsetX
         val renderOffsetY = fromY + offsetY

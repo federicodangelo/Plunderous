@@ -3,12 +3,12 @@ package com.fangelo.libraries.light.component
 import box2dLight.RayHandler
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.render.component.VisualComponent
 
-class WorldLight : VisualComponent() {
-
+class WorldLight : VisualComponent(), Pool.Poolable {
     var ambientLight: Color = Color.BLACK
         set(value) {
             field = value
@@ -55,5 +55,10 @@ class WorldLight : VisualComponent() {
         val native = this.native ?: return
         native.setCombinedMatrix(camera.native)
         native.updateAndRender()
+    }
+
+    override fun reset() {
+        world = null
+        native = null
     }
 }

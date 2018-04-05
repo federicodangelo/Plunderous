@@ -2,10 +2,11 @@ package com.fangelo.libraries.sprite.component
 
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.render.component.VisualComponent
 
-class VisualAnimation(var animations: Map<String, Animation<TextureRegion>> = mapOf(), startingAnimation: String = "") : VisualComponent() {
-
+class VisualAnimation(var animations: Map<String, Animation<TextureRegion>> = mapOf(), startingAnimation: String = "") : VisualComponent(),
+    Pool.Poolable {
     var activeAnimation: Animation<TextureRegion>
         private set
 
@@ -48,5 +49,11 @@ class VisualAnimation(var animations: Map<String, Animation<TextureRegion>> = ma
         this.animations = animations
         this.activeAnimation = if (startingAnimation != "") animations[startingAnimation]!! else emptyAnimation()
         return this
+    }
+
+    override fun reset() {
+        activeAnimation = emptyAnimation()
+        playing = false
+        animationTime = 0f
     }
 }
