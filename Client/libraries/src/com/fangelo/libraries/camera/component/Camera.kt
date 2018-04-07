@@ -112,12 +112,14 @@ class Camera : Component, Pool.Poolable {
 
     fun worldBoundingBox(): BoundingBox {
         var cameraBoundingBox = BoundingBox(
-            Vector3(-viewportWidth * zoom * 0.5f, -viewportHeight * zoom * 0.5f, 0f).add(camera.position),
-            Vector3(viewportWidth * zoom * 0.5f, viewportHeight * zoom * 0.5f, 0f).add(camera.position)
+            Vector3(-viewportWidth * zoom * 0.5f, -viewportHeight * zoom * 0.5f, 0f),
+            Vector3(viewportWidth * zoom * 0.5f, viewportHeight * zoom * 0.5f, 0f)
         )
 
         if (rotation != 0f)
             cameraBoundingBox.mul(Matrix4().rotateRad(0f, 0f, -1f, rotation))
+
+        cameraBoundingBox.mul(Matrix4().trn(camera.position.x, camera.position.y, 0f))
 
         return cameraBoundingBox
     }
