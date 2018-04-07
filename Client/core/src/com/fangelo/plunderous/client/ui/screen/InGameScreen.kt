@@ -44,7 +44,7 @@ class InGameScreen : Screen(), ShipInputProvider {
         container.addActor(bottomCenterContainer)
         container.addActor(bottomRightContainer)
 
-        addDebugButtons()
+        addSettingsButtons()
 
         addExitButton()
 
@@ -127,7 +127,15 @@ class InGameScreen : Screen(), ShipInputProvider {
         topRightContainer.add(exitButton).minWidth(75f).padTop(5f).padRight(5f)
     }
 
-    private fun addDebugButtons() {
+    private fun addSettingsButtons() {
+
+        val settingsButton = TextButton("Settings", skin)
+        settingsButton.onChange {
+            ScreenManager.push(SettingsScreen())
+        }
+        topRightContainer.add(settingsButton).minWidth(75f).padTop(5f).padRight(5f)
+
+        /*
         val lightsButton = TextButton("Lights", skin)
         lightsButton.onChange {
             Context.activeGame?.switchLights()
@@ -139,6 +147,7 @@ class InGameScreen : Screen(), ShipInputProvider {
             Context.activeGame?.switchDrawDebug()
         }
         topRightContainer.add(drawDebugButton).minWidth(75f).padTop(5f).padRight(5f)
+        */
     }
 
     private fun returnToMainScreen() {

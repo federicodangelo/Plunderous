@@ -5,6 +5,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Table
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.fangelo.libraries.debug.DebugSettings
 import com.fangelo.libraries.ui.Screen
+import com.fangelo.plunderous.client.Context
 import ktx.actors.onChange
 
 class SettingsScreen : Screen() {
@@ -18,6 +19,10 @@ class SettingsScreen : Screen() {
         addTitle("Settings")
 
         addCheckbox("Show FPS / Stats", DebugSettings.showFps, { button -> DebugSettings.showFps = button.isChecked })
+
+        Context.activeGame?.debug?.settings?.forEach { setting ->
+            addCheckbox(setting.name, setting.value(), { _ -> setting.switchValue() })
+        }
 
         addCloseButton()
     }

@@ -15,6 +15,10 @@ class VisualDebugPhysicsSystem : VisualCameraRenderer() {
     private lateinit var worlds: ImmutableArray<Entity>
     private val world = mapperFor<World>()
 
+    init {
+        enabled = false
+    }
+
     override fun addedToEngine(engine: Engine) {
         debugRenderer = Box2DDebugRenderer()
         worlds = engine.getEntitiesFor(allOf(World::class).get())

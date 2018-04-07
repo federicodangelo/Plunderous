@@ -3,14 +3,15 @@ package com.fangelo.plunderous.client.game
 import com.badlogic.ashley.core.Entity
 import com.badlogic.ashley.core.PooledEngine
 import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.Input
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.assets.loaders.TextureAtlasLoader
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
+import com.badlogic.gdx.physics.box2d.Filter
 import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.camera.system.UpdateCameraSystem
 import com.fangelo.libraries.input.system.InputSystem
 import com.fangelo.libraries.light.system.VisualLightsRenderSystem
+import com.fangelo.libraries.physics.component.Rigidbody
 import com.fangelo.libraries.physics.system.PhysicsSystem
 import com.fangelo.libraries.physics.system.UpdatePhysicsSystem
 import com.fangelo.libraries.physics.system.VisualDebugPhysicsSystem
@@ -26,6 +27,7 @@ import com.fangelo.plunderous.client.game.avatar.system.UpdateMainAvatarInputSys
 import com.fangelo.plunderous.client.game.camera.system.ProcessCameraInputSystem
 import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
+import com.fangelo.plunderous.client.game.debug.GameDebug
 import com.fangelo.plunderous.client.game.generator.system.ProcessGeneratorSystem
 import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
@@ -45,7 +47,8 @@ class Game {
     private val engine = PooledEngine()
     private val mainCamera: Camera
     private val assetManager = AssetManager()
-    private var debugEnabled = false
+
+    val debug = GameDebug()
 
     constructor(shipInputProvider: ShipInputProvider) {
 
@@ -59,11 +62,37 @@ class Game {
 
         buildGame()
 
-        //disableDebug()
-        enableDebug()
-        switchLights()
-
         initCamera()
+
+        initDebug()
+    }
+
+    private fun initDebug() {
+
+        debug.addSwitch(
+            "Lights",
+            { lightsRendererSystem.enabled },
+            { lightsRendererSystem.enabled = !lightsRendererSystem.enabled }
+        )
+
+        debug.addSwitch(
+            "Draw Physics Info",
+            { debugPhysicsSystem.enabled },
+            { debugPhysicsSystem.enabled = !debugPhysicsSystem.enabled }
+        )
+
+        debug.addSwitch(
+            "Ship Collision",
+            {
+                val maskBits = player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData?.maskBits?.toInt() ?: 0
+                maskBits == -1
+            },
+            {
+                val filterData = player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData ?: Filter()
+                filterData.maskBits = if (filterData.maskBits.toInt() == -1) 0 else -1
+                player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData = filterData
+            }
+        )
     }
 
     private fun initCamera() {
@@ -107,16 +136,6 @@ class Game {
         engine.addSystem(cameraRenderSystem)
     }
 
-    private fun disableDebug() {
-        debugEnabled = false
-        debugPhysicsSystem.enabled = false
-    }
-
-    private fun enableDebug() {
-        debugEnabled = true
-        debugPhysicsSystem.enabled = true
-    }
-
     private fun loadAssets() {
         assetManager.load<TextureAtlas>("tiles/tiles.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
         assetManager.load<TextureAtlas>("items/items.atlas", TextureAtlasLoader.TextureAtlasParameter(true))
@@ -141,14 +160,6 @@ class Game {
     }
 
     fun update(deltaTime: Float) {
-
-        if (Gdx.input.isKeyJustPressed(Input.Keys.D)) {
-            if (debugEnabled)
-                disableDebug()
-            else
-                enableDebug()
-        }
-
         engine.update(deltaTime)
     }
 
@@ -162,16 +173,5 @@ class Game {
         engine.removeAllEntities()
         engine.systems.toArray().forEach { system -> engine.removeSystem(system) }
         assetManager.dispose()
-    }
-
-    fun switchLights() {
-        lightsRendererSystem.enabled = !lightsRendererSystem.enabled
-    }
-
-    fun switchDrawDebug() {
-        if (debugEnabled)
-            disableDebug()
-        else
-            enableDebug()
     }
 }
