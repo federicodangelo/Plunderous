@@ -119,11 +119,7 @@ class InGameScreen : Screen(), ShipInputProvider {
         ScreenManager.show(MainMenuScreen())
     }
 
-    override fun getShipTargetSpeed(): Float {
-        return shipControls.getShipTargetSpeed()
-    }
+    override fun getShipTargetSpeed() = shipControls.getShipTargetSpeed()
 
-    override fun getShipTargetRudderRotation(): Float {
-        return shipControls.getShipTargetRudderRotation()
-    }
+    override fun getShipTargetRudderRotation() = shipControls.getShipTargetRudderRotation()
 }

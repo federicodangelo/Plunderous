@@ -25,7 +25,6 @@ class WorldLight : VisualComponent(), Pool.Poolable {
     internal var world: World? = null
     internal var native: RayHandler? = null
 
-
     internal fun initNative(world: World) {
 
         RayHandler.isDiffuse = true

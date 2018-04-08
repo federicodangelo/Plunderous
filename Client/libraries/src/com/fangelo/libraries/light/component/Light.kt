@@ -8,14 +8,18 @@ import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.render.component.VisualComponent
 import com.fangelo.libraries.transform.Transform
 
-class Light(val rays: Int = 256) : VisualComponent(), Pool.Poolable {
-    var world: World? = null
+class Light : VisualComponent(), Pool.Poolable {
+    internal var world: World? = null
     internal var native: PointLight? = null
 
-    fun set(world: World, distance: Float, color: Color) {
+    var rays: Int = 128
+        private set
+
+    fun set(world: World, distance: Float, color: Color, rays: Int = 128) {
         this.world = world
         this.distance = distance
         this.color = color
+        this.rays = rays
     }
 
     var color: Color = Color.BLACK
@@ -53,6 +57,7 @@ class Light(val rays: Int = 256) : VisualComponent(), Pool.Poolable {
         }
 
         val native = PointLight(worldLight.native, this.rays, this.color, this.distance, transform.x, transform.y)
+        native.ignoreAttachedBody = true
         this.native = native
     }
 

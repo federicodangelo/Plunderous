@@ -3,24 +3,19 @@ package com.fangelo.plunderous.client.game.generator.generators
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
-import com.badlogic.gdx.graphics.Color
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.badlogic.gdx.math.RandomXS128
 import com.badlogic.gdx.math.Vector2
-import com.badlogic.gdx.physics.box2d.BodyDef
-import com.fangelo.libraries.physics.component.Rigidbody
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.sprite.Sprite
 import com.fangelo.libraries.sprite.component.VisualSprite
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.generator.component.Generator
 import com.fangelo.plunderous.client.game.generator.utils.RandomUtils
-import com.fangelo.plunderous.client.game.island.component.Island
-import com.fangelo.plunderous.client.game.island.component.VisualIsland
+import com.fangelo.plunderous.client.game.island.factory.IslandFactory
 import ktx.ashley.entity
-import ktx.box2d.BodyDefinition
 
-class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld: World, private val assetManager: AssetManager) {
+class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld: World, assetManager: AssetManager) {
 
     class GeneratedIsland {
         val entities = mutableListOf<Entity>()
@@ -28,6 +23,13 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
 
     private val random = RandomXS128()
     private val randomUtils = RandomUtils(random)
+    private val islandFactory: IslandFactory
+    private val itemsAtlas: TextureAtlas
+
+    init {
+        islandFactory = IslandFactory(engine)
+        itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
+    }
 
     fun buildComponent(): Generator {
 
@@ -45,27 +47,34 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
     private fun buildIslands(fromX: Int, fromY: Int, toX: Int, toY: Int): Any {
         val islands = mutableListOf<GeneratedIsland>()
 
+        initRandom(fromX, fromY, toX, toY)
+
+        getRandomPositions(fromX, fromY, toX, toY, 10)
+            .filter { isValidPosition(it.x, it.y) }
+            .forEach { pos ->
+                val radius = randomUtils.random(2.0f, 5.5f)
+                if (isIslandRadiusInsideBounds(pos, radius, fromX, fromY, toX, toY)) {
+                    islands.add(addIsland(pos.x, pos.y, radius))
+                }
+            }
+
+        return islands
+    }
+
+    private fun isIslandRadiusInsideBounds(pos: Vector2, radius: Float, fromX: Int, fromY: Int, toX: Int, toY: Int): Boolean {
+        return pos.x - radius >= fromX &&
+                pos.y - radius >= fromY &&
+                pos.x + radius <= toX &&
+                pos.y + radius <= toY
+    }
+
+    private fun initRandom(fromX: Int, fromY: Int, toX: Int, toY: Int) {
         random.setSeed(
             fromX * (1L shl 0) +
                     fromY * (1L shl 16) +
                     toX * (1L shl 32) +
                     toY * (1L shl 48)
         )
-
-        getRandomPositions(fromX, fromY, toX, toY, 10)
-            .filter { isValidPosition(it.x, it.y) }
-            .forEach { pos ->
-                val radius = randomUtils.random(2.0f, 5.5f)
-                if (pos.x - radius >= fromX &&
-                    pos.y - radius >= fromY &&
-                    pos.x + radius <= toX &&
-                    pos.y + radius <= toY
-                ) {
-                    islands.add(addIsland(pos.x, pos.y, radius))
-                }
-            }
-
-        return islands
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -83,47 +92,33 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
 
         val generatedIsland = GeneratedIsland()
 
-        val island = engine.entity {
-            with<Transform> {
-                set(x, y, 0f)
-            }
-            with<Rigidbody> {
-                set(mainWorld, buildIslandBodyDefinition(radius))
-            }
-            with<Island> {
-                set(radius)
-            }
-            with<VisualIsland> {
-                set(Color.CORAL)
-            }
-        }
+        val island = islandFactory.buildIsland(x, y, radius, mainWorld)
 
         generatedIsland.entities.add(island)
 
-        addIslandItems(radius, x, y, generatedIsland.entities)
+        generatedIsland.entities.addAll(addIslandItems(radius, x, y))
 
         return generatedIsland
     }
 
-    private fun addIslandItems(
-        radius: Float,
-        x: Float,
-        y: Float,
-        entities: MutableList<Entity>
-    ) {
-        val itemsAtlas = assetManager.get<TextureAtlas>("items/items.atlas")
+    private fun addIslandItems(radius: Float, x: Float, y: Float): List<Entity> {
+        val entities = mutableListOf<Entity>()
 
         getRandomPositionsInsideCircle(x, y, radius - 1.0f, 5)
             .filter { isValidPosition(it.x, it.y) }
-            .forEach { pos ->
-                when (randomUtils.random(0, 2)) {
-                    0 -> entities.add(addSimpleItem(itemsAtlas, "rock1", pos.x, pos.y))
-                    1 -> entities.add(addSimpleItem(itemsAtlas, "rock2", pos.x, pos.y))
-                    2 -> entities.add(addTree(itemsAtlas, pos.x, pos.y))
-                }
-            }
+            .forEach { pos -> entities.add(addRandomItem(pos)) }
+
+        return entities
     }
 
+    private fun addRandomItem(pos: Vector2): Entity {
+        return when (randomUtils.random(0, 2)) {
+            0 -> addSimpleItem("rock1", pos.x, pos.y)
+            1 -> addSimpleItem("rock2", pos.x, pos.y)
+            2 -> addTree(pos.x, pos.y)
+            else -> addTree(pos.x, pos.y)
+        }
+    }
 
     private fun getRandomPositions(fromX: Int, fromY: Int, toX: Int, toY: Int, amount: Int = 25): Array<Vector2> {
         return Array(amount, { _ ->
@@ -140,7 +135,7 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
         })
     }
 
-    private fun addSimpleItem(itemsAtlas: TextureAtlas, name: String, x: Float, y: Float): Entity {
+    private fun addSimpleItem(name: String, x: Float, y: Float): Entity {
 
         val scale = 0.5f
 
@@ -168,7 +163,7 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
     }
 
 
-    private fun addTree(itemsAtlas: TextureAtlas, x: Float, y: Float): Entity {
+    private fun addTree(x: Float, y: Float): Entity {
 
         val scale = 0.25f
 
@@ -191,15 +186,4 @@ class IslandsGeneratorFactory(private val engine: Engine, private val mainWorld:
     private fun isValidPosition(x: Float, y: Float): Boolean {
         return Vector2.dst2(x, y, 0f, 0f) >= 5.5f * 5.5f
     }
-
-
-    private fun buildIslandBodyDefinition(radius: Float): BodyDefinition {
-        var islandBodyDefinition = BodyDefinition()
-
-        islandBodyDefinition.type = BodyDef.BodyType.StaticBody
-        islandBodyDefinition.circle(radius)
-
-        return islandBodyDefinition
-    }
-
 }
