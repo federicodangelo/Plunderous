@@ -19,7 +19,7 @@ import com.fangelo.libraries.render.system.VisualCameraRenderSystem
 import com.fangelo.libraries.sprite.system.UpdateVisualAnimationSystem
 import com.fangelo.libraries.sprite.system.VisualSpriteRenderSystem
 import com.fangelo.libraries.tilemap.system.VisualTilemapRenderSystem
-import com.fangelo.libraries.tilemap.system.VisualWaterRenderSystem
+import com.fangelo.plunderous.client.game.water.system.VisualWaterRenderSystem
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.avatar.system.ProcessAvatarInputSystem
 import com.fangelo.plunderous.client.game.avatar.system.UpdateAvatarAnimationSystem

@@ -1,4 +1,4 @@
-package com.fangelo.libraries.tilemap.system
+package com.fangelo.plunderous.client.game.water.system
 
 import com.badlogic.ashley.core.Engine
 import com.badlogic.ashley.core.Entity
@@ -67,9 +67,14 @@ class VisualWaterRenderSystem : VisualCameraRenderer() {
         var drawY = bounds.renderOffsetY.toFloat()
 
         batch.disableBlending()
+
         for (mapX in bounds.fromY until bounds.toY) {
             var drawX = renderOffsetX
             for (mapY in bounds.fromX until bounds.toX) {
+                val waterDepth = water.getWaterDepth(mapX, mapY)
+                val color = 0.5f + waterDepth * 0.5f
+                batch.setColor(color, color, color, 1.0f)
+
                 batch.draw(tileTexture, drawX, drawY, 1f, 1f)
                 drawX++
             }
