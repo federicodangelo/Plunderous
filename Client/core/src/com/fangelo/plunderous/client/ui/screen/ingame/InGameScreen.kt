@@ -1,15 +1,18 @@
-package com.fangelo.plunderous.client.ui.screen
+package com.fangelo.plunderous.client.ui.screen.ingame
 
-import com.badlogic.gdx.scenes.scene2d.ui.*
+import com.badlogic.gdx.scenes.scene2d.ui.Table
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton
+import com.badlogic.gdx.scenes.scene2d.ui.WidgetGroup
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
-import com.fangelo.libraries.utils.format
 import com.fangelo.plunderous.client.Context
-import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.system.ShipInputProvider
+import com.fangelo.plunderous.client.ui.screen.mainmenu.MainMenuScreen
+import com.fangelo.plunderous.client.ui.screen.settings.SettingsScreen
 import ktx.actors.onChange
 
 class InGameScreen : Screen(), ShipInputProvider {
+
     private val topLeftContainer: Table
     private val middleRightContainer: Table
     private val topRightContainer: Table
@@ -18,12 +21,7 @@ class InGameScreen : Screen(), ShipInputProvider {
     private val bottomLeftContainer: Table
 
     private val container: WidgetGroup
-
-    private lateinit var rudderLabel: Label
-    private lateinit var rudderSlider: Slider
-
-    private lateinit var speedLabel: Label
-    private lateinit var speedSlider: Slider
+    private val shipControls: ShipControls
 
     init {
 
@@ -48,25 +46,11 @@ class InGameScreen : Screen(), ShipInputProvider {
 
         addExitButton()
 
-        addShipControls()
+        shipControls = addShipControls()
     }
 
-    private fun addShipControls() {
-
-        rudderSlider = Slider(-1.0f, 1.0f, 0.1f, false, skin)
-        rudderSlider.value = 0f
-        rudderLabel = Label("", skin)
-
-        speedSlider = Slider(-0.1f, 1.0f, 0.1f, true, skin)
-        speedSlider.value = 0f
-        speedLabel = Label("", skin)
-
-
-        bottomCenterContainer.row().center().table.add(rudderLabel).padBottom(0f)
-        bottomCenterContainer.row().center().table.add(rudderSlider).padBottom(10f).width(200f)
-
-        middleRightContainer.row().right().table.add(speedLabel).padRight(10f).padBottom(0f)
-        middleRightContainer.row().right().table.add(speedSlider).padRight(10f).height(200f)
+    private fun addShipControls(): ShipControls {
+        return ShipControls(skin, bottomCenterContainer, middleRightContainer)
     }
 
     override fun onLayout() {
@@ -106,15 +90,7 @@ class InGameScreen : Screen(), ShipInputProvider {
     }
 
     override fun onUpdate(deltaTime: Float) {
-        updateLabels()
-    }
-
-    private fun updateLabels() {
-        val rudderRotation = getShipTargetRudderRotation()
-        rudderLabel.setText("${rudderRotation.format(2)}")
-
-        val speed = getShipTargetSpeed()
-        speedLabel.setText("${speed.format(2)}")
+        shipControls.update(deltaTime)
     }
 
     private fun addExitButton() {
@@ -134,20 +110,6 @@ class InGameScreen : Screen(), ShipInputProvider {
             ScreenManager.push(SettingsScreen())
         }
         topRightContainer.add(settingsButton).minWidth(75f).padTop(5f).padRight(5f)
-
-        /*
-        val lightsButton = TextButton("Lights", skin)
-        lightsButton.onChange {
-            Context.activeGame?.switchLights()
-        }
-        topRightContainer.add(lightsButton).minWidth(75f).padTop(5f).padRight(5f)
-
-        val drawDebugButton = TextButton("Debug", skin)
-        drawDebugButton.onChange {
-            Context.activeGame?.switchDrawDebug()
-        }
-        topRightContainer.add(drawDebugButton).minWidth(75f).padTop(5f).padRight(5f)
-        */
     }
 
     private fun returnToMainScreen() {
@@ -158,22 +120,10 @@ class InGameScreen : Screen(), ShipInputProvider {
     }
 
     override fun getShipTargetSpeed(): Float {
-        val game = Context.activeGame ?: return 0f
-        val ship = game.player?.getComponent(Ship::class.java) ?: return 0f
-        val speed =
-            if (speedSlider.value >= 0f)
-                speedSlider.value * ship.maxForwardSpeed
-            else
-                (speedSlider.value / speedSlider.minValue) * ship.maxBackwardSpeed
-        return speed
+        return shipControls.getShipTargetSpeed()
     }
 
     override fun getShipTargetRudderRotation(): Float {
-        val game = Context.activeGame ?: return 0f
-        val ship = game.player?.getComponent(Ship::class.java) ?: return 0f
-
-        val rudderRotation = rudderSlider.value * ship.maxRudderRotation
-        return rudderRotation
+        return shipControls.getShipTargetRudderRotation()
     }
-
 }

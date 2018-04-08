@@ -5,7 +5,7 @@ import com.badlogic.gdx.Input
 import com.badlogic.gdx.InputAdapter
 import com.fangelo.libraries.ui.DialogResult
 import com.fangelo.libraries.ui.ScreenManager
-import com.fangelo.plunderous.client.ui.dialog.ConfirmDialog
+import com.fangelo.plunderous.client.ui.dialog.confirm.ConfirmDialog
 
 class ExitInputHandler : InputAdapter() {
     override fun keyDown(keycode: Int): Boolean {

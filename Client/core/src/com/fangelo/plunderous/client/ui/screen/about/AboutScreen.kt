@@ -1,4 +1,4 @@
-package com.fangelo.plunderous.client.ui.screen
+package com.fangelo.plunderous.client.ui.screen.about
 
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton

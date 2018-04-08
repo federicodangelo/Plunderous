@@ -1,4 +1,4 @@
-package com.fangelo.plunderous.client.ui.dialog
+package com.fangelo.plunderous.client.ui.dialog.test
 
 import com.fangelo.libraries.ui.Dialog
 

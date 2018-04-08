@@ -1,11 +1,11 @@
-package com.fangelo.plunderous.client.ui.dialog
+package com.fangelo.plunderous.client.ui.dialog.loadinggame
 
 import com.fangelo.libraries.ui.Dialog
 import com.fangelo.libraries.ui.DialogResult
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.Context
 import com.fangelo.plunderous.client.game.Game
-import com.fangelo.plunderous.client.ui.screen.InGameScreen
+import com.fangelo.plunderous.client.ui.screen.ingame.InGameScreen
 
 class LoadingGameDialog : Dialog("Loading") {
 

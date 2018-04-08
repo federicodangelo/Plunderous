@@ -1,4 +1,4 @@
-package com.fangelo.plunderous.client.ui.screen
+package com.fangelo.plunderous.client.ui.screen.settings
 
 import com.badlogic.gdx.scenes.scene2d.ui.CheckBox
 import com.badlogic.gdx.scenes.scene2d.ui.Table

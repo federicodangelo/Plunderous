@@ -47,11 +47,11 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
 
         val camera = getMainCamera() ?: return
 
-        val x = InputInfo.touchingX
-        val y = InputInfo.touchingY
+            val x = InputInfo.touchingX
+            val y = InputInfo.touchingY
 
-        if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
-            return
+            if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
+                return
 
         var touchWorldPos = camera.screenPositionToWorldPosition(x.toFloat(), y.toFloat())
 

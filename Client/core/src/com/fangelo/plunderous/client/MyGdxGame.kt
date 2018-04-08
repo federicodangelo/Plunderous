@@ -9,7 +9,7 @@ import com.fangelo.libraries.input.InputHandler
 import com.fangelo.libraries.input.UIInputHandler
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.ui.ExitInputHandler
-import com.fangelo.plunderous.client.ui.screen.MainMenuScreen
+import com.fangelo.plunderous.client.ui.screen.mainmenu.MainMenuScreen
 import ktx.app.KtxApplicationAdapter
 
 private const val REF_HEIGHT_IN_PIXELS = 1366

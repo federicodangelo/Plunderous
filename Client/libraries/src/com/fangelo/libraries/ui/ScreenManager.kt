@@ -247,6 +247,24 @@ object ScreenManager {
         return isInteractable(actor.parent)
     }
 
+    fun isUiAtScreenPosition(x: Float, y: Float, target: Actor): Boolean {
+        val vector = Vector2(x, y)
+        stage.screenToStageCoordinates(vector)
+        val hit = stage.hit(vector.x, vector.y, true)
+        return isUiAtScreenPosition(hit, target)
+    }
+
+    private fun isUiAtScreenPosition(actor: Actor?, target: Actor): Boolean {
+        if (actor == null)
+            return false
+
+        if (actor === target)
+            return true
+
+        return isUiAtScreenPosition(actor.parent, target)
+    }
+
+
     internal fun internalDialogClosed(dialog: Dialog) {
         if (activeDialog === dialog) {
             activeDialog = null

@@ -1,11 +1,13 @@
-package com.fangelo.plunderous.client.ui.screen
+package com.fangelo.plunderous.client.ui.screen.mainmenu
 
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton
 import com.fangelo.libraries.debug.DebugSettings
-import com.fangelo.plunderous.client.ui.dialog.LoadingGameDialog
-import com.fangelo.plunderous.client.ui.dialog.TestDialog
+import com.fangelo.plunderous.client.ui.dialog.loadinggame.LoadingGameDialog
+import com.fangelo.plunderous.client.ui.dialog.test.TestDialog
 import com.fangelo.libraries.ui.Screen
 import com.fangelo.libraries.ui.ScreenManager
+import com.fangelo.plunderous.client.ui.screen.settings.SettingsScreen
+import com.fangelo.plunderous.client.ui.screen.about.AboutScreen
 import ktx.actors.onChange
 
 class MainMenuScreen : Screen() {
