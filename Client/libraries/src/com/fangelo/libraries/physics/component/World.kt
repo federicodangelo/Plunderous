@@ -17,7 +17,9 @@ class World : Component, Pool.Poolable {
     internal var native: com.badlogic.gdx.physics.box2d.World? = null
     internal var worldLight: WorldLight? = null
 
-    private val maxStepTime = 1 / 45f
+    val stepTime = 1 / 45f
+    var step = 0
+        private set
 
     private var accumulator = 0f
 
@@ -61,9 +63,10 @@ class World : Component, Pool.Poolable {
 
         val frameTime = Math.min(deltaTime, 0.25f)
         accumulator += frameTime
-        if (accumulator >= maxStepTime) {
-            accumulator -= maxStepTime
-            native.step(maxStepTime, 6, 2)
+        if (accumulator >= stepTime) {
+            accumulator -= stepTime
+            native.step(stepTime, 6, 2)
+            step++
 
             updateBodiesTransforms()
         }

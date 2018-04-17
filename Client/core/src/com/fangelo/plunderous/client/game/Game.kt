@@ -108,17 +108,20 @@ class Game {
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
     private lateinit var lightsRendererSystem: VisualLightsRenderSystem
+    lateinit var processShipInputSystem: ProcessShipInputSystem
 
     private fun initEngineSystems(shipInputProvider: ShipInputProvider) {
 
         var cameraRenderSystem = VisualCameraRenderSystem()
+
+        processShipInputSystem = ProcessShipInputSystem()
 
         engine.addSystem(PhysicsSystem())
         engine.addSystem(UpdatePhysicsSystem())
         engine.addSystem(ProcessGeneratorSystem())
         engine.addSystem(UpdateMainShipInputSystem(shipInputProvider))
         engine.addSystem(UpdateMainAvatarInputSystem())
-        engine.addSystem(ProcessShipInputSystem())
+        engine.addSystem(processShipInputSystem)
         engine.addSystem(ProcessAvatarInputSystem())
         engine.addSystem(ProcessCameraInputSystem())
         engine.addSystem(UpdateCameraSystem())

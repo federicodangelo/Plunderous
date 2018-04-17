@@ -11,12 +11,14 @@ import com.fangelo.plunderous.client.game.ship.component.ShipInput
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
 import kotlin.math.absoluteValue
-
+import kotlin.math.sign
 
 class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::class, ShipInput::class).get()) {
     private val rigidbody = mapperFor<Rigidbody>()
     private val ship = mapperFor<Ship>()
     private val shipInput = mapperFor<ShipInput>()
+
+    var movementType = ShipMovementType.SIMPLIFIED
 
     public override fun processEntity(entity: Entity, deltaTime: Float) {
         val rigidbody = rigidbody.get(entity)
@@ -26,11 +28,73 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
         val body = rigidbody.native ?: return
 
         updateRudder(shipInput, ship, deltaTime)
-
-        updatePhysics(body, ship, shipInput)
+        updatePhysics(body, rigidbody, ship, shipInput)
     }
 
-    private fun updatePhysics(body: Body, ship: Ship, shipInput: ShipInput) {
+    private fun updatePhysics(body: Body, rigidbody: Rigidbody, ship: Ship, shipInput: ShipInput) {
+        when (movementType) {
+            ShipMovementType.REALISTIC -> updatePhysicsRealistic(body, ship, shipInput)
+            ShipMovementType.SIMPLIFIED -> updatePhysicsSimplified(body, rigidbody, ship, shipInput)
+        }
+    }
+
+    private fun updatePhysicsSimplified(body: Body, rigidbody: Rigidbody, ship: Ship, shipInput: ShipInput) {
+        updateTorqueSimplified(body, shipInput, rigidbody)
+
+        updateDriveSimplified(body, rigidbody, ship, shipInput)
+    }
+
+    private fun updateDriveSimplified(body: Body, rigidbody: Rigidbody, ship: Ship, shipInput: ShipInput) {
+        var desiredSpeed = MathUtils.clamp(shipInput.targetSpeed, ship.maxBackwardSpeed, ship.maxForwardSpeed)
+
+        //find current targetSpeed in up direction
+        var currentForwardNormal = body.getWorldVector(Vector2(0f, 1f))
+        var currentSpeed = getForwardVelocity(body).cpy().dot(currentForwardNormal)
+
+        //apply necessary force
+        var force = when {
+            desiredSpeed > 0 && currentSpeed < desiredSpeed -> ship.driveForce
+            desiredSpeed < 0 && currentSpeed <= 0.1f && currentSpeed > desiredSpeed -> -ship.driveForce
+            else -> 0f
+        }
+
+        if (force.absoluteValue > 0.01f)
+            body.applyForce(currentForwardNormal.scl(force), body.worldCenter, true)
+    }
+
+    private fun updateTorqueSimplified(body: Body, shipInput: ShipInput, rigidbody: Rigidbody) {
+        val bodyAngle = body.angle
+        val desiredAngle = shipInput.targetRudderRotation
+
+        val worldStepTime = (rigidbody.world?.stepTime ?: 1f)
+
+        val bodyAngularVelocity = body.angularVelocity
+
+        val nextAngle = bodyAngle + bodyAngularVelocity * worldStepTime
+        val currentRotationDelta = normalizeRotation(desiredAngle - bodyAngle)
+        val nextRotationDelta = normalizeRotation(desiredAngle - nextAngle)
+
+        var desiredAngularVelocity = nextRotationDelta / worldStepTime
+
+        if (currentRotationDelta.sign == nextRotationDelta.sign) {
+            //Clamp rotation speed when the target isn't reached yet
+            val maxChange = 1 * MathUtils.degreesToRadians
+            desiredAngularVelocity = MathUtils.clamp(desiredAngularVelocity, -maxChange, maxChange)
+        }
+
+        val impulse = body.inertia * desiredAngularVelocity
+        if (impulse.absoluteValue > 0.01f)
+            body.applyAngularImpulse(impulse, true)
+    }
+
+    private fun normalizeRotation(rotation: Float): Float {
+        var clampedRotation = rotation
+        while (clampedRotation < -180 * MathUtils.degreesToRadians) clampedRotation += 360 * MathUtils.degreesToRadians
+        while (clampedRotation > 180 * MathUtils.degreesToRadians) clampedRotation -= 360 * MathUtils.degreesToRadians
+        return clampedRotation
+    }
+
+    private fun updatePhysicsRealistic(body: Body, ship: Ship, shipInput: ShipInput) {
         updateFriction(body)
         updateDrive(ship, body, shipInput)
         updateTorque(ship, body)
@@ -85,6 +149,17 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
     }
 
     private fun updateRudder(shipInput: ShipInput, ship: Ship, deltaTime: Float) {
+        when (movementType) {
+            ShipMovementType.SIMPLIFIED -> updateRudderSimplified(shipInput, ship)
+            ShipMovementType.REALISTIC -> updateRudderRealistic(shipInput, ship, deltaTime)
+        }
+    }
+
+    private fun updateRudderSimplified(shipInput: ShipInput, ship: Ship) {
+        ship.rudderRotation = shipInput.targetRudderRotation
+    }
+
+    private fun updateRudderRealistic(shipInput: ShipInput, ship: Ship, deltaTime: Float) {
         if (shipInput.targetRudderRotation > ship.rudderRotation)
             rotateRudderRight(ship, deltaTime)
         else if (shipInput.targetRudderRotation < ship.rudderRotation)
