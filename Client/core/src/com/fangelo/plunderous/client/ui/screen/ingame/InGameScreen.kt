@@ -15,6 +15,7 @@ class InGameScreen : Screen(), ShipInputProvider {
 
     private val topLeftContainer: Table
     private val middleRightContainer: Table
+    private val middleLeftContainer: Table
     private val topRightContainer: Table
     private val bottomRightContainer: Table
     private val bottomCenterContainer: Table
@@ -30,6 +31,7 @@ class InGameScreen : Screen(), ShipInputProvider {
 
         topLeftContainer = Table()
         middleRightContainer = Table()
+        middleLeftContainer = Table()
         topRightContainer = Table()
         bottomRightContainer = Table()
         bottomCenterContainer = Table()
@@ -37,6 +39,7 @@ class InGameScreen : Screen(), ShipInputProvider {
 
         container.addActor(topLeftContainer)
         container.addActor(middleRightContainer)
+        container.addActor(middleLeftContainer)
         container.addActor(topRightContainer)
         container.addActor(bottomLeftContainer)
         container.addActor(bottomCenterContainer)
@@ -50,7 +53,7 @@ class InGameScreen : Screen(), ShipInputProvider {
     }
 
     private fun addShipControls(): ShipControls {
-        return ShipControls(skin, bottomCenterContainer, middleRightContainer)
+        return ShipControls(skin, bottomCenterContainer, middleRightContainer, middleLeftContainer)
     }
 
     override fun onLayout() {
@@ -65,6 +68,11 @@ class InGameScreen : Screen(), ShipInputProvider {
 
         middleRightContainer.setPosition(
             (container.width / 2 - middleRightContainer.prefWidth / 2).toInt().toFloat(),
+            0f
+        )
+
+        middleLeftContainer.setPosition(
+            (-container.width / 2 + middleLeftContainer.prefWidth / 2).toInt().toFloat(),
             0f
         )
 

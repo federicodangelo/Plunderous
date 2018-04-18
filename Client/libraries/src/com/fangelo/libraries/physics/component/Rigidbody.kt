@@ -1,6 +1,7 @@
 package com.fangelo.libraries.physics.component
 
 import com.badlogic.ashley.core.Component
+import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.physics.box2d.Body
 import com.badlogic.gdx.utils.Pool
@@ -11,13 +12,14 @@ class Rigidbody : Component, Pool.Poolable {
     var definition: BodyDefinition? = null
     var world: World? = null
     var native: Body? = null //TODO: Make internal!!
+    var entity: Entity? = null
 
     fun set(world: World, definition: BodyDefinition) {
         this.world = world
         this.definition = definition
     }
 
-    internal fun initNative(transform: Transform) {
+    internal fun initNative(entity: Entity, transform: Transform) {
         val definition = this.definition
 
         if (definition == null) {
@@ -47,6 +49,7 @@ class Rigidbody : Component, Pool.Poolable {
         definition.creationCallback?.let { it(body) }
 
         this.native = body
+        this.entity = entity
     }
 
     private fun updateFromTransform(bodyDefinition: BodyDefinition, transform: Transform) {

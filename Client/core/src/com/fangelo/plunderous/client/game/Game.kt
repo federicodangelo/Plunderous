@@ -41,7 +41,7 @@ private const val REF_HEIGHT_IN_TILES = 32
 
 class Game {
 
-    var player: Entity? = null
+    var playerShip: Entity? = null
         private set
 
     private val engine = PooledEngine()
@@ -84,26 +84,26 @@ class Game {
         debug.addSwitch(
             "Ship Collision",
             {
-                val maskBits = player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData?.maskBits?.toInt() ?: 0
+                val maskBits = playerShip?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData?.maskBits?.toInt() ?: 0
                 maskBits == -1
             },
             {
-                val filterData = player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData ?: Filter()
+                val filterData = playerShip?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData ?: Filter()
                 filterData.maskBits = if (filterData.maskBits.toInt() == -1) 0 else -1
-                player?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData = filterData
+                playerShip?.getComponent(Rigidbody::class.java)?.native?.fixtureList?.get(0)?.filterData = filterData
             }
         )
     }
 
     private fun initCamera() {
-        mainCamera.followTransform = player?.get()
+        mainCamera.followTransform = playerShip?.get()
         mainCamera.followTransformRotation = false
     }
 
     private fun buildGame() {
         val gameBuilder = GameBuilder()
         gameBuilder.build(engine, assetManager, mainCamera)
-        this.player = gameBuilder.playerShip
+        this.playerShip = gameBuilder.playerShip
     }
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem

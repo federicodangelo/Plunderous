@@ -8,8 +8,10 @@ import com.badlogic.gdx.utils.Pool
 import com.fangelo.libraries.light.component.WorldLight
 import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
+import ktx.box2d.Query
 import ktx.box2d.body
 import ktx.box2d.createWorld
+import ktx.box2d.query
 
 class World : Component, Pool.Poolable {
     var followTransform: Transform? = null
@@ -44,7 +46,7 @@ class World : Component, Pool.Poolable {
     }
 
     internal fun addRigidbody(rigidbody: Rigidbody, transform: Transform, entity: Entity) {
-        rigidbody.initNative(transform)
+        rigidbody.initNative(entity, transform)
         bodies.add(entity)
     }
 
@@ -142,5 +144,28 @@ class World : Component, Pool.Poolable {
         followTransform = null
         native = null
         worldLight = null
+    }
+
+    fun getBodiesInAABB(centerX: Float, centerY: Float, width: Float, height: Float): List<Rigidbody> {
+
+        val bodies = mutableListOf<Rigidbody>()
+        val halfWidth = width * 0.5f
+        val halfHeight = height * 0.5f
+
+        native?.query(
+            lowerX = centerX - halfWidth,
+            lowerY = centerY - halfHeight,
+            upperX = centerX + halfWidth,
+            upperY = centerY + halfHeight
+        ) { fixture ->
+            val userData = fixture.userData
+
+            if (userData is Rigidbody) {
+                bodies.add(userData)
+            }
+            Query.CONTINUE
+        }
+
+        return bodies
     }
 }
