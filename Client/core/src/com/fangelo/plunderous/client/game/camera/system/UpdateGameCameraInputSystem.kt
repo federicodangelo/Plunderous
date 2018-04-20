@@ -5,6 +5,7 @@ import com.badlogic.ashley.systems.IteratingSystem
 import com.badlogic.gdx.math.MathUtils
 import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.input.InputInfo
+import com.fangelo.libraries.physics.component.Rigidbody
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.Context
 import com.fangelo.plunderous.client.game.Game
@@ -42,8 +43,9 @@ class UpdateGameCameraInputSystem : IteratingSystem(allOf(Camera::class, GameCam
             }
             GameCameraState.FollowingAvatar -> {
                 camera.followTransform = game.playerAvatar?.getComponent(Transform::class.java)
-                camera.followTransformRotation = true
-                camera.renderMask = GameRenderFlags.main or GameRenderFlags.ship
+                val playerInsideShip = game.playerAvatar?.getComponent(Rigidbody::class.java)?.world?.followTransform != null
+                camera.followTransformRotation = playerInsideShip
+                camera.renderMask = if (playerInsideShip) GameRenderFlags.main or GameRenderFlags.ship else GameRenderFlags.main
             }
             GameCameraState.None -> {
 
@@ -52,7 +54,12 @@ class UpdateGameCameraInputSystem : IteratingSystem(allOf(Camera::class, GameCam
     }
 
     private fun getNewCameraState(camera: Camera): GameCameraState {
-        return if (camera.zoom <= GameCameraConstants.switchToShipZoomLevel)
+
+        val game = Context.activeGame ?: return GameCameraState.None
+        val playerAvatar = game.playerAvatar ?: return GameCameraState.None
+        val rigidbody = playerAvatar.getComponent(Rigidbody::class.java)
+
+        return if (camera.zoom <= GameCameraConstants.switchToShipZoomLevel || rigidbody.world?.followTransform == null)
             GameCameraState.FollowingAvatar
         else
             GameCameraState.FollowingShip

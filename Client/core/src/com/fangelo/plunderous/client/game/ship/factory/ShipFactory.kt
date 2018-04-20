@@ -9,7 +9,7 @@ import com.badlogic.gdx.math.MathUtils
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.physics.box2d.BodyDef
 import com.fangelo.libraries.light.component.Light
-import com.fangelo.libraries.light.component.WorldLight
+import com.fangelo.libraries.light.component.WorldLightRenderer
 import com.fangelo.libraries.physics.component.Rigidbody
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.sprite.Sprite
@@ -49,7 +49,7 @@ class ShipFactory(private val engine: Engine, private val assetManager: AssetMan
                 set(mainWorld, lightRadius, Color.WHITE, 512)
             }
             with<World>()
-            with<WorldLight> {
+            with<WorldLightRenderer> {
                 renderFlags = GameRenderFlags.ship
             }
             with<GeneratorAreaSource> {

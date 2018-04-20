@@ -45,6 +45,9 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
     }
 
     private fun updateDriveSimplified(body: Body, rigidbody: Rigidbody, ship: Ship, shipInput: ShipInput) {
+        if (isTargetRotationTooFarAway(body, shipInput))
+            return
+
         var desiredSpeed = MathUtils.clamp(shipInput.targetSpeed, ship.maxBackwardSpeed, ship.maxForwardSpeed)
 
         //find current targetSpeed in up direction
@@ -60,6 +63,14 @@ class ProcessShipInputSystem : IteratingSystem(allOf(Rigidbody::class, Ship::cla
 
         if (force.absoluteValue > 0.01f)
             body.applyForce(currentForwardNormal.scl(force), body.worldCenter, true)
+    }
+
+    private fun isTargetRotationTooFarAway(body: Body, shipInput: ShipInput): Boolean {
+        val bodyAngle = body.angle
+        val desiredAngle = shipInput.targetRudderRotation
+        val rotationDelta = normalizeRotation(desiredAngle - bodyAngle)
+
+        return rotationDelta.absoluteValue > MathUtils.PI / 2.0f
     }
 
     private fun updateTorqueSimplified(body: Body, shipInput: ShipInput, rigidbody: Rigidbody) {

@@ -8,7 +8,7 @@ import com.fangelo.libraries.camera.component.Camera
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.render.component.VisualComponent
 
-class WorldLight : VisualComponent(), Pool.Poolable {
+class WorldLightRenderer : VisualComponent(), Pool.Poolable {
     var ambientLight: Color = Color.BLACK
         set(value) {
             field = value
@@ -40,13 +40,13 @@ class WorldLight : VisualComponent(), Pool.Poolable {
 
         this.world = world
         this.native = rayHandler
-        this.world?.worldLight = this
+        this.world?.worldLightRenderer = this
     }
 
     internal fun destroyNative() {
         this.native?.dispose()
         this.native = null
-        this.world?.worldLight = null
+        this.world?.worldLightRenderer = null
         this.world = null
     }
 

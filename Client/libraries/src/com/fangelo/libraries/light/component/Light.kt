@@ -44,19 +44,19 @@ class Light : VisualComponent(), Pool.Poolable {
             return
         }
 
-        val worldLight = world.worldLight
+        val worldLightRenderer = world.worldLightRenderer
 
-        if (worldLight == null) {
-            Gdx.app.error("Light", "WorldLight not initialized for world")
+        if (worldLightRenderer == null) {
+            Gdx.app.error("Light", "WorldLightRenderer not initialized for world")
             return
         }
 
-        if (worldLight.native == null) {
-            Gdx.app.error("Light", "WorldLight not initialized for world")
+        if (worldLightRenderer.native == null) {
+            Gdx.app.error("Light", "WorldLightRenderer not initialized for world")
             return
         }
 
-        val native = PointLight(worldLight.native, this.rays, this.color, this.distance, transform.x, transform.y)
+        val native = PointLight(worldLightRenderer.native, this.rays, this.color, this.distance, transform.x, transform.y)
         native.ignoreAttachedBody = true
         this.native = native
     }

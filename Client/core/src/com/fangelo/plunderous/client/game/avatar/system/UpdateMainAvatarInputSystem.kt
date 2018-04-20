@@ -13,6 +13,8 @@ import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.plunderous.client.game.avatar.component.Avatar
 import com.fangelo.plunderous.client.game.avatar.component.AvatarInput
 import com.fangelo.plunderous.client.game.avatar.component.MainAvatar
+import com.fangelo.plunderous.client.game.camera.component.GameCamera
+import com.fangelo.plunderous.client.game.camera.component.GameCameraState
 import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import ktx.ashley.allOf
 import ktx.ashley.mapperFor
@@ -20,12 +22,13 @@ import ktx.ashley.mapperFor
 class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarInput::class, MainAvatar::class, Transform::class).get()) {
     private val transform = mapperFor<Transform>()
     private val camera = mapperFor<Camera>()
+    private val gameCamera = mapperFor<GameCamera>()
     private val avatarInput = mapperFor<AvatarInput>()
     private lateinit var cameras: ImmutableArray<Entity>
 
     override fun addedToEngine(engine: Engine) {
         super.addedToEngine(engine)
-        cameras = engine.getEntitiesFor(allOf(Camera::class).get())
+        cameras = engine.getEntitiesFor(allOf(Camera::class, GameCamera::class).get())
     }
 
     public override fun processEntity(entity: Entity, deltaTime: Float) {
@@ -34,7 +37,7 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
 
         avatarInput.reset()
 
-        if (!isMainCameraZoomedOnAvatar())
+        if (!isGameCameraFollowingAvatar())
             return
 
         updateTouchInput(avatarInput, transform)
@@ -47,11 +50,11 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
 
         val camera = getMainCamera() ?: return
 
-            val x = InputInfo.touchingX
-            val y = InputInfo.touchingY
+        val x = InputInfo.touchingX
+        val y = InputInfo.touchingY
 
-            if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
-                return
+        if (ScreenManager.isUiAtScreenPosition(x.toFloat(), y.toFloat()))
+            return
 
         var touchWorldPos = camera.screenPositionToWorldPosition(x.toFloat(), y.toFloat())
 
@@ -75,12 +78,12 @@ class UpdateMainAvatarInputSystem : IteratingSystem(allOf(Avatar::class, AvatarI
         }
     }
 
-    private fun isMainCameraZoomedOnAvatar(): Boolean {
-        return getMainCameraZoom() <= GameCameraConstants.switchToShipZoomLevel
+    private fun isGameCameraFollowingAvatar(): Boolean {
+        return getGameCamera()?.state == GameCameraState.FollowingAvatar
     }
 
-    private fun getMainCameraZoom(): Float {
-        return getMainCamera()?.zoom ?: 0f
+    private fun getGameCamera(): GameCamera? {
+        return cameras.map { entity -> gameCamera.get(entity) }.first()
     }
 
     private fun getMainCamera(): Camera? {

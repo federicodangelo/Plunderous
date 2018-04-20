@@ -5,7 +5,8 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.Gdx
 import com.badlogic.gdx.math.Vector2
 import com.badlogic.gdx.utils.Pool
-import com.fangelo.libraries.light.component.WorldLight
+import com.fangelo.libraries.light.component.Light
+import com.fangelo.libraries.light.component.WorldLightRenderer
 import com.fangelo.libraries.transform.Transform
 import ktx.ashley.mapperFor
 import ktx.box2d.Query
@@ -17,7 +18,7 @@ class World : Component, Pool.Poolable {
     var followTransform: Transform? = null
 
     internal var native: com.badlogic.gdx.physics.box2d.World? = null
-    internal var worldLight: WorldLight? = null
+    internal var worldLightRenderer: WorldLightRenderer? = null
 
     val stepTime = 1 / 45f
     var step = 0
@@ -51,8 +52,26 @@ class World : Component, Pool.Poolable {
     }
 
     internal fun removeRigidbody(rigidbody: Rigidbody, entity: Entity) {
-        if (bodies.remove(entity))
+        if (bodies.remove(entity)) {
             rigidbody.destroyNative()
+            rigidbody.destroyShapes()
+        }
+    }
+
+    internal fun moveToOtherWorld(rigidbody: Rigidbody, otherWorld: World) {
+        val entity = rigidbody.entity ?: return
+        val entityLight = entity.getComponent(Light::class.java)
+        val entityTransform = entity.getComponent(Transform::class.java)
+
+        entityLight?.destroyNative()
+        rigidbody.destroyNative()
+
+        bodies.remove(entity)
+        rigidbody.world = otherWorld
+        entityLight?.world = otherWorld
+
+        otherWorld.addRigidbody(rigidbody, entityTransform, entity)
+        entityLight?.initNative(entityTransform)
     }
 
     internal fun updatePhysics(deltaTime: Float) {
@@ -143,7 +162,7 @@ class World : Component, Pool.Poolable {
     override fun reset() {
         followTransform = null
         native = null
-        worldLight = null
+        worldLightRenderer = null
     }
 
     fun getBodiesInAABB(centerX: Float, centerY: Float, width: Float, height: Float): List<Rigidbody> {

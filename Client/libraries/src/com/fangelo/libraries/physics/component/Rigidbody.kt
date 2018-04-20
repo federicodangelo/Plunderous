@@ -52,6 +52,13 @@ class Rigidbody : Component, Pool.Poolable {
         this.entity = entity
     }
 
+    fun moveToOtherWorld(otherWorld: World) {
+        if (otherWorld == world)
+            return
+
+        this.world?.moveToOtherWorld(this, otherWorld)
+    }
+
     private fun updateFromTransform(bodyDefinition: BodyDefinition, transform: Transform) {
         bodyDefinition.position.set(transform.x, transform.y)
         bodyDefinition.angle = transform.rotation
@@ -62,6 +69,12 @@ class Rigidbody : Component, Pool.Poolable {
             val fixture = body.createFixture(fixtureDefinition)
             fixture.userData = this
             fixtureDefinition.creationCallback?.let { it(fixture) }
+        }
+    }
+
+    internal fun destroyShapes() {
+        val definition = this.definition ?: return
+        for (fixtureDefinition in definition.fixtureDefinitions) {
             fixtureDefinition.shape.dispose()
             fixtureDefinition.shape = null
         }

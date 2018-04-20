@@ -8,6 +8,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.*
 import com.fangelo.libraries.input.InputInfo
 import com.fangelo.libraries.physics.component.Rigidbody
 import com.fangelo.libraries.physics.component.World
+import com.fangelo.libraries.render.component.VisualComponent
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.libraries.utils.format
@@ -15,12 +16,13 @@ import com.fangelo.plunderous.client.Context
 import com.fangelo.plunderous.client.game.Game
 import com.fangelo.plunderous.client.game.camera.component.GameCamera
 import com.fangelo.plunderous.client.game.camera.component.GameCameraState
+import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import com.fangelo.plunderous.client.game.island.component.Island
 import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.system.ShipMovementType
 import ktx.actors.onChange
 
-class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContainer: Table, middleLeftContainer: Table) {
+class PlayerControls(skin: Skin, bottomCenterContainer: Table, middleRightContainer: Table, middleLeftContainer: Table) {
 
     private val returnRudderToDefaultPositionSpeed = 2.0f
 
@@ -31,6 +33,7 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
     private val speedSlider: Slider
 
     private val goToIslandButton: Button
+    private val goToShipButton: Button
 
     private var rudderReturning = false
     private var rudderReturningValue = 0f
@@ -52,7 +55,13 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
             goToIsland()
         }
 
+        goToShipButton = TextButton("Go To\nShip", skin)
+        goToShipButton.onChange {
+            goToShip()
+        }
+
         middleLeftContainer.row().left().table.add(goToIslandButton).padLeft(10f)
+        middleLeftContainer.row().left().table.add(goToShipButton).padLeft(10f)
 
         bottomCenterContainer.row().center().table.add(rudderLabel).padBottom(0f)
         bottomCenterContainer.row().center().table.add(rudderSlider).padBottom(10f).width(200f)
@@ -63,20 +72,68 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
 
     private fun goToIsland() {
         val game = Context.activeGame ?: return
+        val mainWorld = game.mainWorld ?: return
         val closestIsland = getClosestIslandToPlayerShip(game) ?: return
 
+        val playerAvatar = game.playerAvatar ?: return
+        val playerAvatarTransform = playerAvatar.getComponent(Transform::class.java)
+        val playerAvatarRigidbody = playerAvatar.getComponent(Rigidbody::class.java)
+
+        updateEntityRenderFlags(playerAvatar, GameRenderFlags.main)
+        playerAvatarTransform.rotation = 0f
+        playerAvatarRigidbody.moveToOtherWorld(mainWorld)
+
         Gdx.app.log("[PLAYER]", "Going to island $closestIsland")
+    }
+
+    private fun goToShip() {
+        val game = Context.activeGame ?: return
+        val closestShip = getClosestShipToPlayer(game) ?: return
+        val closestShipWorld = closestShip.getComponent(World::class.java)
+
+        val playerAvatar = game.playerAvatar ?: return
+        val playerAvatarTransform = playerAvatar.getComponent(Transform::class.java)
+        val playerAvatarRigidbody = playerAvatar.getComponent(Rigidbody::class.java)
+
+        updateEntityRenderFlags(playerAvatar, GameRenderFlags.ship)
+        playerAvatarTransform.set(0f, 0f, 0f)
+        playerAvatarRigidbody.moveToOtherWorld(closestShipWorld)
+
+        Gdx.app.log("[PLAYER]", "Going to ship $closestShip")
+    }
+
+    private fun updateEntityRenderFlags(playerAvatar: Entity, renderFlags: Int) {
+        for (component in playerAvatar.components) {
+            if (component is VisualComponent) {
+                component.renderFlags = renderFlags
+            }
+        }
     }
 
     fun update(deltaTime: Float) {
         val game = Context.activeGame ?: return
 
-        updateMovement(game, deltaTime)
+        updateShipMovement(game, deltaTime)
         updateGoToIslandButton(game)
+        updateGoToShipButton(game)
     }
 
     private fun updateGoToIslandButton(game: Game) {
-        goToIslandButton.isVisible = getClosestIslandToPlayerShip(game) != null
+        goToIslandButton.isVisible = isPlayerOnShip(game) && getClosestIslandToPlayerShip(game) != null
+    }
+
+    private fun updateGoToShipButton(game: Game) {
+        goToShipButton.isVisible = !isPlayerOnShip(game) && getClosestShipToPlayer(game) != null
+    }
+
+    private fun isPlayerOnShip(game: Game): Boolean {
+
+        val avatarRigidbody = game.playerAvatar?.getComponent(Rigidbody::class.java) ?: return false
+
+        if (avatarRigidbody.world?.followTransform != null)
+            return true
+
+        return false
     }
 
     private fun getCloseIslands(world: World, centerX: Float, centerY: Float, width: Float, height: Float): List<Entity> {
@@ -110,28 +167,59 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
         }).getComponent(Island::class.java)
     }
 
-    private fun updateMovement(game: Game, deltaTime: Float) {
+    private fun getCloseShips(world: World, centerX: Float, centerY: Float, width: Float, height: Float): List<Entity> {
+        val closeBodies = world.getBodiesInAABB(centerX, centerY, width, height)
+        val closeShips = closeBodies.filter { body -> body.entity?.getComponent(Ship::class.java) != null }.mapNotNull { body -> body.entity }
+        return closeShips
+    }
+
+    private fun getClosestShipToPlayer(game: Game): Entity? {
+        val playerAvatar = game.playerAvatar ?: return null
+
+        val transform = playerAvatar.getComponent(Transform::class.java)
+        val rigidbody = playerAvatar.getComponent(Rigidbody::class.java)
+
+        val world = rigidbody.world ?: return null
+
+        val closeShips = getCloseShips(world, transform.x, transform.y, 10f, 10f)
+
+        if (closeShips.isEmpty())
+            return null
+
+        return closeShips.reduce({ acc, island ->
+
+            val accTransform = acc.getComponent(Transform::class.java)
+            val islandTransform = island.getComponent(Transform::class.java)
+
+            val accDistanceToPlayerShip = Vector2.dst(accTransform.x, accTransform.y, transform.x, transform.y)
+            val islandDistanceToPlayerShip = Vector2.dst(islandTransform.x, islandTransform.y, transform.x, transform.y)
+
+            if (islandDistanceToPlayerShip < accDistanceToPlayerShip) island else acc
+        })
+    }
+
+    private fun updateShipMovement(game: Game, deltaTime: Float) {
         when (game.processShipInputSystem.movementType) {
             ShipMovementType.REALISTIC -> {
-                showMovementControls()
+                showShipMovementControls()
                 returnRudderToDefaultPosition(deltaTime)
                 updateLabels()
             }
             ShipMovementType.SIMPLIFIED -> {
-                hideMovementControls()
-                updateTouchInput(game)
+                hideShipMovementControls()
+                updateShipTouchInput(game)
             }
         }
     }
 
-    private fun hideMovementControls() {
+    private fun hideShipMovementControls() {
         speedSlider.isVisible = false
         speedLabel.isVisible = false
         rudderSlider.isVisible = false
         rudderLabel.isVisible = false
     }
 
-    private fun showMovementControls() {
+    private fun showShipMovementControls() {
         speedSlider.isVisible = true
         speedLabel.isVisible = true
         rudderSlider.isVisible = true
@@ -200,7 +288,7 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
         }
     }
 
-    private fun updateTouchInput(game: Game) {
+    private fun updateShipTouchInput(game: Game) {
         if (!InputInfo.touching || InputInfo.touchingTime < 0.25f || InputInfo.zooming || !isGameCameraFollowingShip(game)) {
             touchingSpeed = 0.0f
             return

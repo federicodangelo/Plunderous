@@ -19,6 +19,7 @@ import com.fangelo.plunderous.client.game.avatar.component.Avatar
 import com.fangelo.plunderous.client.game.avatar.component.AvatarInput
 import com.fangelo.plunderous.client.game.avatar.component.MainAvatar
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
+import com.fangelo.plunderous.client.game.generator.component.GeneratorAreaSource
 import ktx.ashley.entity
 import ktx.box2d.BodyDefinition
 import ktx.collections.toGdxArray
@@ -50,7 +51,10 @@ class AvatarFactory(val assetManager: AssetManager, val engine: Engine) {
                 set(playerAnimations, "walk-east")
             }
             with<Light> {
-                set(world, 3.0f, Color.WHITE)
+                set(world, 10.0f, Color.WHITE)
+            }
+            with<GeneratorAreaSource> {
+                followTransformRadius = 5.0f
             }
         }
 

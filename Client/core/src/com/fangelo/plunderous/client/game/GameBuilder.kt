@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity
 import com.badlogic.gdx.assets.AssetManager
 import com.badlogic.gdx.graphics.g2d.TextureAtlas
 import com.fangelo.libraries.camera.component.Camera
-import com.fangelo.libraries.light.component.WorldLight
+import com.fangelo.libraries.light.component.WorldLightRenderer
 import com.fangelo.libraries.physics.component.World
 import com.fangelo.plunderous.client.game.avatar.factory.AvatarFactory
 import com.fangelo.plunderous.client.game.generator.component.GeneratorAreaSource
@@ -57,7 +57,7 @@ class GameBuilder {
 
         val entity = engine.entity {
             with<World>()
-            with<WorldLight>()
+            with<WorldLightRenderer>()
         }
 
         mainWorld = entity.getComponent(World::class.java)

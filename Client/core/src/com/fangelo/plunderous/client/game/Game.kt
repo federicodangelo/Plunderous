@@ -12,6 +12,7 @@ import com.fangelo.libraries.camera.system.UpdateCameraSystem
 import com.fangelo.libraries.input.system.InputSystem
 import com.fangelo.libraries.light.system.VisualLightsRenderSystem
 import com.fangelo.libraries.physics.component.Rigidbody
+import com.fangelo.libraries.physics.component.World
 import com.fangelo.libraries.physics.system.PhysicsSystem
 import com.fangelo.libraries.physics.system.UpdatePhysicsSystem
 import com.fangelo.libraries.physics.system.VisualDebugPhysicsSystem
@@ -48,6 +49,9 @@ class Game {
         private set
 
     var mainGameCamera: Entity? = null
+        private set
+
+    var mainWorld: World? = null
         private set
 
     private val engine = PooledEngine()
@@ -104,6 +108,7 @@ class Game {
         gameBuilder.build(engine, assetManager, mainCamera)
         this.playerShip = gameBuilder.playerShip
         this.playerAvatar = gameBuilder.playerAvatar
+        this.mainWorld = gameBuilder.mainWorld
     }
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem

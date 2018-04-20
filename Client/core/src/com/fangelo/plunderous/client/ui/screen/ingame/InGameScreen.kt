@@ -22,7 +22,7 @@ class InGameScreen : Screen(), ShipInputProvider {
     private val bottomLeftContainer: Table
 
     private val container: WidgetGroup
-    private val shipControls: ShipControls
+    private val playerControls: PlayerControls
 
     init {
 
@@ -49,11 +49,11 @@ class InGameScreen : Screen(), ShipInputProvider {
 
         addExitButton()
 
-        shipControls = addShipControls()
+        playerControls = addShipControls()
     }
 
-    private fun addShipControls(): ShipControls {
-        return ShipControls(skin, bottomCenterContainer, middleRightContainer, middleLeftContainer)
+    private fun addShipControls(): PlayerControls {
+        return PlayerControls(skin, bottomCenterContainer, middleRightContainer, middleLeftContainer)
     }
 
     override fun onLayout() {
@@ -98,7 +98,7 @@ class InGameScreen : Screen(), ShipInputProvider {
     }
 
     override fun onUpdate(deltaTime: Float) {
-        shipControls.update(deltaTime)
+        playerControls.update(deltaTime)
     }
 
     private fun addExitButton() {
@@ -124,7 +124,7 @@ class InGameScreen : Screen(), ShipInputProvider {
         ScreenManager.show(MainMenuScreen())
     }
 
-    override fun getShipTargetSpeed() = shipControls.getShipTargetSpeed()
+    override fun getShipTargetSpeed() = playerControls.getShipTargetSpeed()
 
-    override fun getShipTargetRudderRotation() = shipControls.getShipTargetRudderRotation()
+    override fun getShipTargetRudderRotation() = playerControls.getShipTargetRudderRotation()
 }
