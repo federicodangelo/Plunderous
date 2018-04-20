@@ -13,6 +13,8 @@ import com.fangelo.libraries.ui.ScreenManager
 import com.fangelo.libraries.utils.format
 import com.fangelo.plunderous.client.Context
 import com.fangelo.plunderous.client.game.Game
+import com.fangelo.plunderous.client.game.camera.component.GameCamera
+import com.fangelo.plunderous.client.game.camera.component.GameCameraState
 import com.fangelo.plunderous.client.game.island.component.Island
 import com.fangelo.plunderous.client.game.ship.component.Ship
 import com.fangelo.plunderous.client.game.ship.system.ShipMovementType
@@ -61,13 +63,9 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
 
     private fun goToIsland() {
         val game = Context.activeGame ?: return
-
-        val closestIsland = getClosestIslandToPlayerShip(game)
-
-        if (closestIsland == null) return
+        val closestIsland = getClosestIslandToPlayerShip(game) ?: return
 
         Gdx.app.log("[PLAYER]", "Going to island $closestIsland")
-
     }
 
     fun update(deltaTime: Float) {
@@ -121,7 +119,7 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
             }
             ShipMovementType.SIMPLIFIED -> {
                 hideMovementControls()
-                updateTouchInput()
+                updateTouchInput(game)
             }
         }
     }
@@ -202,8 +200,8 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
         }
     }
 
-    private fun updateTouchInput() {
-        if (!InputInfo.touching || InputInfo.touchingTime < 0.25f || InputInfo.zooming) {
+    private fun updateTouchInput(game: Game) {
+        if (!InputInfo.touching || InputInfo.touchingTime < 0.25f || InputInfo.zooming || !isGameCameraFollowingShip(game)) {
             touchingSpeed = 0.0f
             return
         }
@@ -235,5 +233,9 @@ class ShipControls(skin: Skin, bottomCenterContainer: Table, middleRightContaine
         }
 
         //Gdx.app.log("DEBUG", "Angle: $angle Distance: $distanceNormalized")
+    }
+
+    private fun isGameCameraFollowingShip(game: Game): Boolean {
+        return game.mainGameCamera?.getComponent(GameCamera::class.java)?.state == GameCameraState.FollowingShip
     }
 }

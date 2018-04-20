@@ -19,12 +19,12 @@ import com.fangelo.libraries.render.system.VisualCameraRenderSystem
 import com.fangelo.libraries.sprite.system.UpdateVisualAnimationSystem
 import com.fangelo.libraries.sprite.system.VisualSpriteRenderSystem
 import com.fangelo.libraries.tilemap.system.VisualTilemapRenderSystem
-import com.fangelo.plunderous.client.game.water.system.VisualWaterRenderSystem
 import com.fangelo.libraries.transform.Transform
 import com.fangelo.plunderous.client.game.avatar.system.ProcessAvatarInputSystem
 import com.fangelo.plunderous.client.game.avatar.system.UpdateAvatarAnimationSystem
 import com.fangelo.plunderous.client.game.avatar.system.UpdateMainAvatarInputSystem
-import com.fangelo.plunderous.client.game.camera.system.ProcessCameraInputSystem
+import com.fangelo.plunderous.client.game.camera.component.GameCamera
+import com.fangelo.plunderous.client.game.camera.system.UpdateGameCameraInputSystem
 import com.fangelo.plunderous.client.game.constants.GameCameraConstants
 import com.fangelo.plunderous.client.game.constants.GameRenderFlags
 import com.fangelo.plunderous.client.game.debug.GameDebug
@@ -33,8 +33,8 @@ import com.fangelo.plunderous.client.game.island.system.VisualIslandRenderSystem
 import com.fangelo.plunderous.client.game.ship.system.ProcessShipInputSystem
 import com.fangelo.plunderous.client.game.ship.system.ShipInputProvider
 import com.fangelo.plunderous.client.game.ship.system.UpdateMainShipInputSystem
+import com.fangelo.plunderous.client.game.water.system.VisualWaterRenderSystem
 import ktx.ashley.entity
-import ktx.ashley.get
 import ktx.assets.load
 
 private const val REF_HEIGHT_IN_TILES = 32
@@ -42,6 +42,12 @@ private const val REF_HEIGHT_IN_TILES = 32
 class Game {
 
     var playerShip: Entity? = null
+        private set
+
+    var playerAvatar: Entity? = null
+        private set
+
+    var mainGameCamera: Entity? = null
         private set
 
     private val engine = PooledEngine()
@@ -61,8 +67,6 @@ class Game {
         resize(Gdx.graphics.width, Gdx.graphics.height)
 
         buildGame()
-
-        initCamera()
 
         initDebug()
     }
@@ -95,15 +99,11 @@ class Game {
         )
     }
 
-    private fun initCamera() {
-        mainCamera.followTransform = playerShip?.get()
-        mainCamera.followTransformRotation = false
-    }
-
     private fun buildGame() {
         val gameBuilder = GameBuilder()
         gameBuilder.build(engine, assetManager, mainCamera)
         this.playerShip = gameBuilder.playerShip
+        this.playerAvatar = gameBuilder.playerAvatar
     }
 
     private lateinit var debugPhysicsSystem: VisualDebugPhysicsSystem
@@ -123,7 +123,7 @@ class Game {
         engine.addSystem(UpdateMainAvatarInputSystem())
         engine.addSystem(processShipInputSystem)
         engine.addSystem(ProcessAvatarInputSystem())
-        engine.addSystem(ProcessCameraInputSystem())
+        engine.addSystem(UpdateGameCameraInputSystem())
         engine.addSystem(UpdateCameraSystem())
         engine.addSystem(UpdateAvatarAnimationSystem())
         engine.addSystem(UpdateVisualAnimationSystem())
@@ -157,7 +157,12 @@ class Game {
                 id = GameCameraConstants.mainCameraId
                 renderMask = GameRenderFlags.main
             }
+            with<GameCamera> {
+
+            }
         }
+
+        mainGameCamera = entity
 
         return entity.getComponent(Camera::class.java)
     }

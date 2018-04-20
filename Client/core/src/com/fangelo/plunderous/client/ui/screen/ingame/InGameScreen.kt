@@ -103,16 +103,13 @@ class InGameScreen : Screen(), ShipInputProvider {
 
     private fun addExitButton() {
         val exitButton = TextButton("Exit", skin)
-
         exitButton.onChange {
             returnToMainScreen()
         }
-
         topRightContainer.add(exitButton).minWidth(75f).padTop(5f).padRight(5f)
     }
 
     private fun addSettingsButtons() {
-
         val settingsButton = TextButton("Settings", skin)
         settingsButton.onChange {
             ScreenManager.push(SettingsScreen())
